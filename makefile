@@ -12,7 +12,7 @@ endif
 PIP = $(PYTHON) -m pip install
 
 whisper:
-	$(WHISPER) fixtures/short.mp3 --language ru --model large
+	$(WHISPER) fixtures/short.mp3 --language ru --model large --output_dir transcrip --threads 5
 
 setup: setup_python setup_pip
 
