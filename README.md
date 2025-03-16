@@ -21,7 +21,7 @@ make setup PYTHON_BIN=D:\python\3.9.9\python.exe
 Настройка под Ubuntu 22.04.
 
 ```bash
-sudo apt-get install ffmpeg curl python-pip
+sudo apt-get install ffmpeg curl python3-pip
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 git clone git@github.com:vb64/voice.transcription.git
