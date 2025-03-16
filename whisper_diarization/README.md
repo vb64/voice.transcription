@@ -11,7 +11,7 @@
 Затем в окне консоли:
 
 ```
-git clone git@github.com:MahmoudAshraf97/whisper-diarization.git
+git clone https://github.com/MahmoudAshraf97/whisper-diarization.git
 cd whisper-diarization
 make setup PYTHON_BIN=D:\python\3.10\python.exe
 ```
