@@ -7,6 +7,7 @@
 - [Python3.10.11](https://www.python.org/downloads/release/python-31011/)
 - [ffmpeg](https://ffmpeg.org/download.html) (распаковать архив и добавить в PATH)
 - [Perl](https://strawberryperl.com/)
+- build tools by installing [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
 
 Затем в окне консоли:
 
