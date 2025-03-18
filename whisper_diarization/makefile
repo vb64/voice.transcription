@@ -9,6 +9,9 @@ endif
 
 PIP = $(PYTHON) -m pip install
 
+mp3:
+	$(PYTHON) diarize.py -a fixtures/ep-6-i.mp3 --whisper-model large --language ru
+
 short:
 	$(PYTHON) diarize.py -a fixtures/short.mp3 --whisper-model large --language ru
 
