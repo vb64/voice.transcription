@@ -1,13 +1,5 @@
 SENTENCE_END = ".!?"
-
-
-def diarization(in_file, out_file):
-    print(in_file, "->", out_file)
-
-
-def content(in_file, out_file):
-    print(in_file, "->", out_file)
-
+SPEAKER = len("Speaker 0: ")
 
 def is_complete(sentence):
     return sentence[-1] in SENTENCE_END
@@ -34,7 +26,7 @@ def write_sentence(out, text):
         out.write('\n')
 
 
-def whisper(in_file, out_file):
+def whisper(in_file, out_file, diarization):
     print(in_file, "->", out_file)
     lines = open(in_file, "rt", encoding="utf-8").readlines()
     start = 0
@@ -46,7 +38,10 @@ def whisper(in_file, out_file):
         if len(chunk) < 4:
             eof = True
         else:
-            text.append(chunk[2].strip())
+            item = chunk[2].strip()
+            if diarization:
+                item = item[SPEAKER:]
+            text.append(item)
 
     out = open(out_file, "wt", encoding="utf-8")
     group = []
@@ -59,9 +54,13 @@ def whisper(in_file, out_file):
     out.close()
 
 
+def content(in_file, out_file):
+    print(in_file, "->", out_file)
+
+
 def main():
-    whisper("whisper.srt", "whisper.txt")
-    diarization("diarization.srt", "diarization.txt")
+    whisper("whisper.srt", "whisper.txt", False)
+    whisper("diarization.srt", "diarization.txt", True)
     content("content.md", "content.txt")
 
 
