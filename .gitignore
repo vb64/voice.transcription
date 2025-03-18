@@ -4,5 +4,6 @@ __pycache__
 .coverage
 htmlcov/*
 venv*
+mp3*
 dist/
 *.egg-info/
