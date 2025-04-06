@@ -1,6 +1,6 @@
 # Использование whisper-diarization
 
-Настройка под Windows.
+## Настройка под Windows.
 
 Перечень средств разработки, необходимых для настройки хоста. Скачать и установить:
 
@@ -28,6 +28,18 @@ cmd = ["perl", os.path.join(UROMAN_PATH, "uroman.pl")]
 cmd = ["D:/Perl/perl/bin/perl.exe", os.path.join(UROMAN_PATH, "uroman.pl")]
 ```
 
+В файле `diarize.py` строку 99
+
+```python
+f'python -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o temp_outputs --device "{args.device}"'
+```
+
+изменить на
+
+```python
+f'venv\\Scripts\\python.exe -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o temp_outputs --device "{args.device}"'
+```
+
 Затем:
 
 ```
@@ -39,7 +51,7 @@ make short
 - short.srt
 - short.txt
 
-Настройка под Linux.
+## Настройка под Linux.
 
 ```
 sudo apt update
