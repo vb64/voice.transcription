@@ -6,6 +6,8 @@ from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
 CHUNK_LENGTH = 1000 * 60 * 20  # milliseconds (20 min)
+MIN_SILENCE_LEN = 100  # Minimum length of silence in milliseconds
+SILENCE_THRESHOLD = -40  # Silence threshold in dB
 
 
 def save_chunk(chunk, start_time, output_dir, output_format):
@@ -38,9 +40,7 @@ def split_audio(input_file, output_dir, chunk_length_ms, output_format):
     start_time = time.time()
 
     # Split the audio file based on silence
-    min_silence_len = 100  # Minimum length of silence in milliseconds
-    silence_thresh = -40   # Silence threshold in dB
-    chunks = split_on_silence(audio, min_silence_len=min_silence_len, silence_thresh=silence_thresh)
+    chunks = split_on_silence(audio, min_silence_len=MIN_SILENCE_LEN, silence_thresh=SILENCE_THRESHOLD)
     print("Split on silence: {} sec".format(int(time.time() - start_time)))
     start_time = time.time()
 
