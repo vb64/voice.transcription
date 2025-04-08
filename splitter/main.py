@@ -1,8 +1,11 @@
 import sys
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
+
+CHUNK_LENGTH = 1000 * 60 * 20  # milliseconds (20 min)
 
 
 def save_chunk(chunk, start_time, output_dir, output_format):
@@ -26,25 +29,38 @@ def merge_short_chunks(chunks, min_chunk_length_ms):
 
 
 def split_audio(input_file, output_dir, chunk_length_ms, output_format):
+    start_time = time.time()
+    total_time = start_time
+
     # Load the input audio file using Pydub
     audio = AudioSegment.from_file(input_file)
+    print("Load audio: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
     # Split the audio file based on silence
     min_silence_len = 100  # Minimum length of silence in milliseconds
     silence_thresh = -40   # Silence threshold in dB
     chunks = split_on_silence(audio, min_silence_len=min_silence_len, silence_thresh=silence_thresh)
+    print("Split on silence: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
 
     # Merge adjacent chunks shorter than the specified length
     chunks = merge_short_chunks(chunks, chunk_length_ms)
+    print("Merge short chunks: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
 
     # Save chunks in parallel using ThreadPoolExecutor
     with ThreadPoolExecutor() as executor:
         for i, chunk in enumerate(chunks):
             executor.submit(save_chunk, chunk, i, output_dir, output_format)
     
+    print("Saving chunks: {} sec".format(int(time.time() - start_time)))
+    print("\nTotal: {} sec".format(int(time.time() - total_time)))
+
 
 def main(file_name):
-    split_audio(file_name, 'build', 1000 * 600, 'mp3')
+    split_audio(file_name, 'build', CHUNK_LENGTH, 'mp3')
 
 
 if __name__ == "__main__":
-    main(sys.argv[0])
+    main(sys.argv[1])
