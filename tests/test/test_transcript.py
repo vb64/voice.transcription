@@ -30,11 +30,15 @@ class TestTranscript(TestBase):
         forced_alignment = transcript.forced_alignment
         transcript.forced_alignment = lambda device, segments, info, waveform: None
 
+        to_mono = transcript.to_mono
+        transcript.to_mono = lambda waveform, file_name: None
+
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
         transcript.transcribe = transcribe
         transcript.forced_alignment = forced_alignment
+        transcript.to_mono = to_mono
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -70,3 +74,5 @@ class TestTranscript(TestBase):
         # print(info)
         word_timestamps = transcript.forced_alignment(transcript.DEVICE, segments, info, waveform)
         assert len(word_timestamps) > 1
+
+        assert transcript.to_mono(waveform, self.build('mono.wav')) is None

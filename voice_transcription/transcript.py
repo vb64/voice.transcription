@@ -4,6 +4,7 @@ import sys
 import time
 
 import torch
+import torchaudio
 import faster_whisper
 from demucs.separate import main as demucs_separate
 from ctc_forced_aligner import (
@@ -90,7 +91,6 @@ def transcribe(model_name, device, vocal_target, language):
     # del whisper_model, whisper_pipeline
     # torch.cuda.empty_cache()
     # print("clear gpu vram: {} sec".format(int(time.time() - start_time)))
-    # start_time = time.time()
 
     return (transcript_segments, info, audio_waveform)
 
@@ -146,6 +146,18 @@ def forced_alignment(device, segments, info, waveform):  # pylint: disable=too-m
     return word_timestamps
 
 
+def to_mono(waveform, file_name):
+    """Convert audio to mono for NeMo combatibility."""
+    start_time = time.time()
+    torchaudio.save(
+      file_name,
+      torch.from_numpy(waveform).unsqueeze(0).float(),
+      16000,
+      channels_first=True
+    )
+    print("to_mono: {} sec".format(int(time.time() - start_time)))
+
+
 def main(options):
     """Entry point."""
     start_time = time.time()
@@ -161,8 +173,9 @@ def main(options):
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
     segments, info, waveform = transcribe(MODEL, DEVICE, vocal_target, lang)
-    # word_timestamps = 
+    # word_timestamps =
     forced_alignment(DEVICE, segments, info, waveform)
+    to_mono(waveform, os.path.join(TEMP_DIR, "mono_file.wav"))
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
