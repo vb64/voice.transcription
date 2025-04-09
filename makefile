@@ -40,6 +40,9 @@ pep257:
 
 tests: flake8 pep257 lint
 	$(PYTEST) -m "not longrunning" --durations=5 $(TESTS)
+
+cover: flake8 pep257 lint
+	$(PYTEST) --durations=5 $(TESTS)
 	$(COVERAGE) html --skip-covered
 
 setup: setup_python setup_pip
