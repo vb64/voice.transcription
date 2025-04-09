@@ -17,6 +17,11 @@ class TestTranscript(TestBase):
 
     def test_main(self):
         """Check main function."""
-        from voice_transcription.transcript import main
+        from voice_transcription import transcript
 
-        assert main(self.options) == 0
+        isolate_vocals = transcript.isolate_vocals
+        transcript.isolate_vocals = lambda input_file: "xxx.wav"
+
+        assert transcript.main(self.options) == 0
+
+        transcript.isolate_vocals = isolate_vocals

@@ -1,12 +1,35 @@
 """Voice transcription stuff."""
+import os
 import sys
 import time
 
+from demucs.separate import main as demucs_separate
+
 from .cli_options import PARSER, VERSION, COPYRIGHTS
 from .language import process_language_arg
-from . import Model
+from . import Model, Device
 
 LANGUAGE = 'ru'
+TEMP_DIR = "temp_outputs"
+DEVICE = Device.Cpu
+
+
+def isolate_vocals(input_file):
+    """Isolate vocals from the rest of the audio."""
+    demucs_separate([
+      "-n", "htdemucs",
+      "--two-stems", "vocals",
+      "-o", TEMP_DIR,
+      "--device", DEVICE,
+      input_file
+    ])
+
+    return os.path.join(
+        TEMP_DIR,
+        "htdemucs",
+        os.path.splitext(os.path.basename(input_file))[0],
+        "vocals.wav",
+    )
 
 
 def main(options):
@@ -21,6 +44,9 @@ def main(options):
       options.num_speakers if options.num_speakers > 0 else 'auto',
       lang
     ))
+
+    vocal_target = isolate_vocals(options.input_file)
+    print("Vocal target: {}".format(vocal_target))
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
