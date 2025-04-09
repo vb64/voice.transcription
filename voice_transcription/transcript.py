@@ -8,15 +8,15 @@ import faster_whisper
 from demucs.separate import main as demucs_separate
 from ctc_forced_aligner import (
   generate_emissions,
-  # get_alignments,
-  # get_spans,
+  get_alignments,
+  get_spans,
   load_alignment_model,
-  # postprocess_results,
-  # preprocess_text,
+  postprocess_results,
+  preprocess_text,
 )
 
 from .cli_options import PARSER, VERSION, COPYRIGHTS
-from .language import process_language_arg
+from .language import process_language_arg, LANGS_TO_ISO
 from . import Model, Device, MTYPES, TTYPES
 
 LANGUAGE = 'ru'
@@ -95,12 +95,9 @@ def transcribe(model_name, device, vocal_target, language):
     return (transcript_segments, info, audio_waveform)
 
 
-def forced_alignment(device, _segments, _info, waveform):
+def forced_alignment(device, segments, info, waveform):  # pylint: disable=too-many-locals
     """Force alignment."""
     start_time = time.time()
-    # full_transcript = "".join(segment.text for segment in transcript_segments)
-    # print("full_transcript: {} sec".format(int(time.time() - start_time)))
-    # start_time = time.time()
 
     alignment_model, alignment_tokenizer = load_alignment_model(
       device,
@@ -117,10 +114,36 @@ def forced_alignment(device, _segments, _info, waveform):
     )
     start_time = time.time()
     print("generate_emissions: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
 
-    print(type(alignment_tokenizer))
-    print(type(emissions))
-    print(type(stride))
+    full_transcript = "".join(segment.text for segment in segments)
+    print("full_transcript: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    tokens_starred, text_starred = preprocess_text(
+      full_transcript,
+      romanize=True,
+      language=LANGS_TO_ISO[info.language],
+    )
+    print("preprocess_text: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    segments, scores, blank_token = get_alignments(
+      emissions,
+      tokens_starred,
+      alignment_tokenizer,
+    )
+    print("get_alignments: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    spans = get_spans(tokens_starred, segments, blank_token)
+    print("get_spans: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    word_timestamps = postprocess_results(text_starred, spans, stride, scores)
+    print("postprocess_results: {} sec".format(int(time.time() - start_time)))
+
+    return word_timestamps
 
 
 def main(options):
@@ -138,6 +161,7 @@ def main(options):
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
     segments, info, waveform = transcribe(MODEL, DEVICE, vocal_target, lang)
+    # word_timestamps = 
     forced_alignment(DEVICE, segments, info, waveform)
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))

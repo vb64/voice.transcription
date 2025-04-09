@@ -66,7 +66,7 @@ class TestTranscript(TestBase):
           'ru'
         )
 
-        print(segments)
-        print(info)
-
-        assert transcript.forced_alignment(transcript.DEVICE, segments, info, waveform) is None
+        # print(segments)
+        # print(info)
+        word_timestamps = transcript.forced_alignment(transcript.DEVICE, segments, info, waveform)
+        assert len(word_timestamps) > 1
