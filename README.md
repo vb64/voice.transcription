@@ -1,15 +1,39 @@
 # Преобразование mp3 в текст с распознаванием спикеров
 
+## Настройка под Windows.
+
 Предварительно установить следующие программы.
 
-- [Python3](https://www.python.org/downloads/release/python-3810/)
 - GNU [Unix Utils](http://unxutils.sourceforge.net/) для операций через makefile
 - [Git for Windows](https://git-scm.com/download/win) для доступа к репозитарию исходных кодов.
+- [Python3.10.11](https://www.python.org/downloads/release/python-31011/)
+- [ffmpeg](https://ffmpeg.org/download.html) (распаковать архив и добавить в PATH)
+- [Perl](https://strawberryperl.com/)
+- build tools by installing [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
 
 Затем:
 
 ```bash
 git clone https://github.com/vb64/voice.transcription.git
 cd voice.transcription
-make setup PYTHON_BIN=C:\полный\путь\на\python.exe
+make setup PYTHON_BIN=C:\полный\путь\на\3.10\python.exe
+```
+
+В файле `venv\Lib\site-packages\ctc_forced_aligner\text_utils.py` в функции `get_uroman_tokens` строку 
+
+```python
+cmd = ["perl", os.path.join(UROMAN_PATH, "uroman.pl")]
+```
+заменить на
+
+```python
+cmd = ["D:/Perl/perl/bin/perl.exe", os.path.join(UROMAN_PATH, "uroman.pl")]
+```
+
+## Настройка под Linux.
+
+```
+sudo apt update
+sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg perl
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
