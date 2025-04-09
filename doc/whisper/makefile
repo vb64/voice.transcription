@@ -3,15 +3,17 @@
 # git remote prune origin
 ifeq ($(OS),Windows_NT)
 PYTHON = venv/Scripts/python.exe
+WHISPER = venv/Scripts/whisper.exe
 PIP = $(PYTHON) -m pip install
 else
 PYTHON = ./venv/bin/python
 PIP = $(PYTHON) -m pip3 install
+WHISPER = ./venv/bin/whisper
 endif
 
 
-all:
-	$(PYTHON) main.py fixtures/short.mp3
+whisper:
+	$(WHISPER) fixtures/short.mp3 --language ru --model large --output_dir transcrip --threads 5
 
 setup: setup_python setup_pip
 

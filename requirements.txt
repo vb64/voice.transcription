@@ -1,2 +1,1 @@
-setuptools-rust
-openai-whisper
+pydub==0.25.1
