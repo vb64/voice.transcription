@@ -25,3 +25,14 @@ class TestTranscript(TestBase):
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
+
+    def test_isolate_vocals(self):
+        """Check isolate_vocals function."""
+        from voice_transcription import transcript
+
+        demucs_separate = transcript.demucs_separate
+        transcript.demucs_separate = lambda args: "xxx.wav"
+
+        assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
+
+        transcript.demucs_separate = demucs_separate
