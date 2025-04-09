@@ -20,7 +20,7 @@ class TestTranscript(TestBase):
         from voice_transcription import transcript
 
         isolate_vocals = transcript.isolate_vocals
-        transcript.isolate_vocals = lambda input_file: "xxx.wav"
+        transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
 
         assert transcript.main(self.options) == 0
 

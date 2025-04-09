@@ -14,18 +14,18 @@ TEMP_DIR = "temp_outputs"
 DEVICE = Device.Cpu
 
 
-def isolate_vocals(input_file):
+def isolate_vocals(input_file, folder):
     """Isolate vocals from the rest of the audio."""
     demucs_separate([
       "-n", "htdemucs",
       "--two-stems", "vocals",
-      "-o", TEMP_DIR,
+      "-o", folder,
       "--device", DEVICE,
       input_file
     ])
 
     return os.path.join(
-        TEMP_DIR,
+        folder,
         "htdemucs",
         os.path.splitext(os.path.basename(input_file))[0],
         "vocals.wav",
@@ -45,7 +45,7 @@ def main(options):
       lang
     ))
 
-    vocal_target = isolate_vocals(options.input_file)
+    vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
     print("Vocal target: {}".format(vocal_target))
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
