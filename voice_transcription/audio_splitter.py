@@ -1,3 +1,5 @@
+"""Split audio file stuff."""
+
 import sys
 import os
 import time
@@ -11,11 +13,13 @@ SILENCE_THRESHOLD = -40  # Silence threshold in dB
 
 
 def save_chunk(chunk, start_time, output_dir, output_format):
+    """Save chunk to file."""
     name = "chunk_{}.{}".format(start_time, output_format)
     chunk.export(os.path.join(output_dir, name), format=output_format)
 
 
 def merge_short_chunks(chunks, min_chunk_length_ms):
+    """Merge short chunks up to given length in milliseconds."""
     merged_chunks = []
     current_chunk = chunks[0]
 
@@ -31,6 +35,7 @@ def merge_short_chunks(chunks, min_chunk_length_ms):
 
 
 def split_audio(input_file, output_dir, chunk_length_ms, output_format):
+    """Split input audio file by chunks with given size."""
     start_time = time.time()
     total_time = start_time
 
@@ -53,14 +58,15 @@ def split_audio(input_file, output_dir, chunk_length_ms, output_format):
     with ThreadPoolExecutor() as executor:
         for i, chunk in enumerate(chunks):
             executor.submit(save_chunk, chunk, i, output_dir, output_format)
-    
+
     print("Saving chunks: {} sec".format(int(time.time() - start_time)))
     print("\nTotal: {} sec".format(int(time.time() - total_time)))
 
 
 def main(file_name):
+    """Entry point."""
     split_audio(file_name, 'build', CHUNK_LENGTH, 'mp3')
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main(sys.argv[1])
