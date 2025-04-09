@@ -39,6 +39,9 @@ pep257:
 	$(PYTHON) -m pydocstyle $(SOURCE)
 
 tests: flake8 pep257 lint
+	$(PYTEST) -m "not longrunning" --durations=5 $(TESTS)
+
+cover: flake8 pep257 lint
 	$(PYTEST) --durations=5 $(TESTS)
 	$(COVERAGE) html --skip-covered
 
@@ -46,7 +49,8 @@ setup: setup_python setup_pip
 
 setup_pip:
 	$(PIP) --upgrade pip
-	$(PIP) -r requirements.txt
+	$(PIP) cython
+	$(PIP) -c constraints.txt -r requirements.txt
 	$(PIP) -r $(TESTS)/requirements.txt
 
 setup_python:
