@@ -12,3 +12,9 @@ class Device:
 
     Gpu = 'cuda'
     Cpu = 'cpu'
+
+
+MTYPES = {
+  Device.Cpu: "int8",
+  Device.Gpu: "float16"
+}

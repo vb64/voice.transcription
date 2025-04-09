@@ -24,9 +24,13 @@ class TestTranscript(TestBase):
         isolate_vocals = transcript.isolate_vocals
         transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
 
+        transcribe = transcript.transcribe
+        transcript.transcribe = lambda model_name, device: None
+
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
+        transcript.transcribe = transcribe
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -45,3 +49,10 @@ class TestTranscript(TestBase):
         from voice_transcription import transcript
 
         assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
+
+    @pytest.mark.longrunning
+    def test_transcribe(self):
+        """Check transcribe function."""
+        from voice_transcription import transcript
+
+        assert transcript.transcribe(transcript.MODEL, transcript.DEVICE) is None
