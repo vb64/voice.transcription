@@ -3,10 +3,11 @@ import os
 import sys
 import time
 
+import torch
 import faster_whisper
 from demucs.separate import main as demucs_separate
 from ctc_forced_aligner import (
-  # generate_emissions,
+  generate_emissions,
   # get_alignments,
   # get_spans,
   load_alignment_model,
@@ -91,10 +92,10 @@ def transcribe(model_name, device, vocal_target, language):
     # print("clear gpu vram: {} sec".format(int(time.time() - start_time)))
     # start_time = time.time()
 
-    return (transcript_segments, info)
+    return (transcript_segments, info, audio_waveform)
 
 
-def forced_alignment(device, _segments, info):
+def forced_alignment(device, _segments, _info, waveform):
     """Force alignment."""
     start_time = time.time()
     # full_transcript = "".join(segment.text for segment in transcript_segments)
@@ -107,9 +108,19 @@ def forced_alignment(device, _segments, info):
     )
     print("load_alignment_model: {} sec".format(int(time.time() - start_time)))
 
-    print(info)
-    print(alignment_model)
-    print(alignment_tokenizer)
+    emissions, stride = generate_emissions(
+      alignment_model,
+      torch.from_numpy(waveform)
+      .to(alignment_model.dtype)
+      .to(alignment_model.device),
+      batch_size=BATCH_SIZE,
+    )
+    start_time = time.time()
+    print("generate_emissions: {} sec".format(int(time.time() - start_time)))
+
+    print(type(alignment_tokenizer))
+    print(type(emissions))
+    print(type(stride))
 
 
 def main(options):
@@ -126,8 +137,8 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
-    segments, info = transcribe(MODEL, DEVICE, vocal_target, lang)
-    forced_alignment(DEVICE, segments, info)
+    segments, info, waveform = transcribe(MODEL, DEVICE, vocal_target, lang)
+    forced_alignment(DEVICE, segments, info, waveform)
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
