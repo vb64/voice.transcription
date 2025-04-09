@@ -15,6 +15,10 @@ TEMP_DIR = "temp_outputs"
 DEVICE = Device.Cpu
 MODEL = Model.Large
 
+# Batch size for batched inference, reduce if you run out of memory,
+# set to 0 for original whisper longform inference
+BATCH_SIZE = 8
+
 
 def isolate_vocals(input_file, folder):
     """Isolate vocals from the rest of the audio."""
@@ -34,7 +38,7 @@ def isolate_vocals(input_file, folder):
     )
 
 
-def transcribe(model_name, device, vocal_target):
+def transcribe(model_name, device, vocal_target, language):
     """Transcribe the audio file."""
     start_time = time.time()
 
@@ -52,9 +56,34 @@ def transcribe(model_name, device, vocal_target):
 
     audio_waveform = faster_whisper.decode_audio(vocal_target)
     print("Decode_audio: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
 
-    print(whisper_pipeline)
-    print(audio_waveform)
+    # args.suppress_numerals == False
+    suppress_tokens = [-1]
+
+    if BATCH_SIZE > 0:
+        transcript_segments, info = whisper_pipeline.transcribe(
+          audio_waveform,
+          language,
+          suppress_tokens=suppress_tokens,
+          batch_size=BATCH_SIZE,
+        )
+    else:
+        transcript_segments, info = whisper_model.transcribe(
+          audio_waveform,
+          language,
+          suppress_tokens=suppress_tokens,
+          vad_filter=True,
+        )
+    print("Transcribe: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    full_transcript = "".join(segment.text for segment in transcript_segments)
+    print("full_transcript: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    print(info)
+    print(full_transcript)
 
 
 def main(options):
@@ -71,7 +100,7 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
-    transcribe(MODEL, DEVICE, vocal_target)
+    transcribe(MODEL, DEVICE, vocal_target, lang)
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 

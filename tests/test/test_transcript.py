@@ -25,7 +25,7 @@ class TestTranscript(TestBase):
         transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda model_name, device, vocal_target: None
+        transcript.transcribe = lambda model_name, device, vocal_target, lang: None
 
         assert transcript.main(self.options) == 0
 
@@ -58,5 +58,6 @@ class TestTranscript(TestBase):
         assert transcript.transcribe(
           transcript.MODEL,
           transcript.DEVICE,
-          self.fixture('vocals.wav')
+          self.fixture('vocals.wav'),
+          'ru'
         ) is None
