@@ -5,10 +5,18 @@ import time
 
 import faster_whisper
 from demucs.separate import main as demucs_separate
+from ctc_forced_aligner import (
+  # generate_emissions,
+  # get_alignments,
+  # get_spans,
+  load_alignment_model,
+  # postprocess_results,
+  # preprocess_text,
+)
 
 from .cli_options import PARSER, VERSION, COPYRIGHTS
 from .language import process_language_arg
-from . import Model, Device, MTYPES
+from . import Model, Device, MTYPES, TTYPES
 
 LANGUAGE = 'ru'
 TEMP_DIR = "temp_outputs"
@@ -76,14 +84,32 @@ def transcribe(model_name, device, vocal_target, language):
           vad_filter=True,
         )
     print("Transcribe: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
 
-    full_transcript = "".join(segment.text for segment in transcript_segments)
-    print("full_transcript: {} sec".format(int(time.time() - start_time)))
+    # clear gpu vram
+    # del whisper_model, whisper_pipeline
+    # torch.cuda.empty_cache()
+    # print("clear gpu vram: {} sec".format(int(time.time() - start_time)))
+    # start_time = time.time()
+
+    return (transcript_segments, info)
+
+
+def forced_alignment(device, _segments, info):
+    """Force alignment."""
     start_time = time.time()
+    # full_transcript = "".join(segment.text for segment in transcript_segments)
+    # print("full_transcript: {} sec".format(int(time.time() - start_time)))
+    # start_time = time.time()
+
+    alignment_model, alignment_tokenizer = load_alignment_model(
+      device,
+      dtype=TTYPES[device]
+    )
+    print("load_alignment_model: {} sec".format(int(time.time() - start_time)))
 
     print(info)
-    print(full_transcript)
+    print(alignment_model)
+    print(alignment_tokenizer)
 
 
 def main(options):
@@ -100,7 +126,8 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
-    transcribe(MODEL, DEVICE, vocal_target, lang)
+    segments, info = transcribe(MODEL, DEVICE, vocal_target, lang)
+    forced_alignment(DEVICE, segments, info)
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 

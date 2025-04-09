@@ -1,4 +1,5 @@
 """Voice transcription stuff."""
+import torch
 
 
 class Model:
@@ -17,4 +18,9 @@ class Device:
 MTYPES = {
   Device.Cpu: "int8",
   Device.Gpu: "float16"
+}
+
+TTYPES = {
+  Device.Cpu: torch.float32,
+  Device.Gpu: torch.float16,
 }

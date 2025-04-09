@@ -25,12 +25,16 @@ class TestTranscript(TestBase):
         transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda model_name, device, vocal_target, lang: None
+        transcript.transcribe = lambda model_name, device, vocal_target, lang: (None, None)
+
+        forced_alignment = transcript.forced_alignment
+        transcript.forced_alignment = lambda device, segments, info: None
 
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
         transcript.transcribe = transcribe
+        transcript.forced_alignment = forced_alignment
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -55,9 +59,14 @@ class TestTranscript(TestBase):
         """Check transcribe function."""
         from voice_transcription import transcript
 
-        assert transcript.transcribe(
+        segments, info = transcript.transcribe(
           transcript.MODEL,
           transcript.DEVICE,
           self.fixture('vocals.wav'),
           'ru'
-        ) is None
+        )
+
+        print(segments)
+        print(info)
+
+        assert transcript.forced_alignment(transcript.DEVICE, segments, info) is None
