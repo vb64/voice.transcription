@@ -34,15 +34,27 @@ def isolate_vocals(input_file, folder):
     )
 
 
-def transcribe(model_name, device):
+def transcribe(model_name, device, vocal_target):
     """Transcribe the audio file."""
+    start_time = time.time()
+
     whisper_model = faster_whisper.WhisperModel(
       model_name,
       device=device,
       compute_type=MTYPES[device]
     )
+    print("\nWhisperModel: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
 
-    print("#", whisper_model)
+    whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
+    print("BatchedInferencePipeline: {} sec".format(int(time.time() - start_time)))
+    start_time = time.time()
+
+    audio_waveform = faster_whisper.decode_audio(vocal_target)
+    print("Decode_audio: {} sec".format(int(time.time() - start_time)))
+
+    print(whisper_pipeline)
+    print(audio_waveform)
 
 
 def main(options):
@@ -59,9 +71,7 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
-    print("Vocal target: {}".format(vocal_target))
-
-    transcribe(MODEL, DEVICE)
+    transcribe(MODEL, DEVICE, vocal_target)
 
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 

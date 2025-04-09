@@ -25,7 +25,7 @@ class TestTranscript(TestBase):
         transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda model_name, device: None
+        transcript.transcribe = lambda model_name, device, vocal_target: None
 
         assert transcript.main(self.options) == 0
 
@@ -55,4 +55,8 @@ class TestTranscript(TestBase):
         """Check transcribe function."""
         from voice_transcription import transcript
 
-        assert transcript.transcribe(transcript.MODEL, transcript.DEVICE) is None
+        assert transcript.transcribe(
+          transcript.MODEL,
+          transcript.DEVICE,
+          self.fixture('vocals.wav')
+        ) is None
