@@ -2,6 +2,8 @@
 
 make test T=test_transcript.py
 """
+import pytest
+
 from . import TestBase
 
 
@@ -36,3 +38,10 @@ class TestTranscript(TestBase):
         assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
 
         transcript.demucs_separate = demucs_separate
+
+    @pytest.mark.longrunning
+    def test_isolate_vocals_real(self):
+        """Check real call for isolate_vocals function."""
+        from voice_transcription import transcript
+
+        assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
