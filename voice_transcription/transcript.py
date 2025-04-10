@@ -17,7 +17,8 @@ from ctc_forced_aligner import (
 
 from .cli_options import VERSION, COPYRIGHTS
 from .language import process_language_arg, LANGS_TO_ISO
-from . import Model, Device, MTYPES, TTYPES
+from .nemo_msdd import diarize
+from . import Model, Device, MTYPES, TTYPES, add_log
 
 LANGUAGE = 'ru'
 TEMP_DIR = "temp_outputs"
@@ -145,17 +146,6 @@ def to_mono(call_log, waveform, file_name):
     add_log(call_log, "to_mono", start_time)
 
 
-def add_log(call_log, name, start_time):
-    """Add record to call log."""
-    now = time.time()
-    seconds = None
-    if start_time is not None:
-        seconds = int(now - start_time)
-    call_log.append((name, seconds))
-
-    return now
-
-
 def dump_log(call_log):
     """Print out call log."""
     for name, seconds in call_log:
@@ -183,7 +173,9 @@ def main(options):
     segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang)
     # word_timestamps =
     forced_alignment(call_log, DEVICE, segments, info, waveform)
-    to_mono(call_log, waveform, os.path.join(TEMP_DIR, "mono_file.wav"))
+    wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
+    to_mono(call_log, waveform, wav_file)
+    diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
 
     dump_log(call_log)
     print("\nTotal: {} sec".format(int(time.time() - start_time)))

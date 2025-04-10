@@ -30,6 +30,9 @@ class TestTranscript(TestBase):
         forced_alignment = transcript.forced_alignment
         transcript.forced_alignment = lambda call_log, device, segments, info, waveform: None
 
+        diarize = transcript.diarize
+        transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path: None
+
         to_mono = transcript.to_mono
         transcript.to_mono = lambda call_log, waveform, file_name: None
 
@@ -39,6 +42,7 @@ class TestTranscript(TestBase):
         transcript.transcribe = transcribe
         transcript.forced_alignment = forced_alignment
         transcript.to_mono = to_mono
+        transcript.diarize = diarize
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
