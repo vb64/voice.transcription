@@ -22,16 +22,16 @@ class TestTranscript(TestBase):
         from voice_transcription import transcript
 
         isolate_vocals = transcript.isolate_vocals
-        transcript.isolate_vocals = lambda input_file, folder: "xxx.wav"
+        transcript.isolate_vocals = lambda call_log, input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda model_name, device, vocal_target, lang: (None, None, None)
+        transcript.transcribe = lambda call_log, model_name, device, vocal_target, lang: (None, None, None)
 
         forced_alignment = transcript.forced_alignment
-        transcript.forced_alignment = lambda device, segments, info, waveform: None
+        transcript.forced_alignment = lambda call_log, device, segments, info, waveform: None
 
         to_mono = transcript.to_mono
-        transcript.to_mono = lambda waveform, file_name: None
+        transcript.to_mono = lambda call_log, waveform, file_name: None
 
         assert transcript.main(self.options) == 0
 
@@ -47,7 +47,8 @@ class TestTranscript(TestBase):
         demucs_separate = transcript.demucs_separate
         transcript.demucs_separate = lambda args: "xxx.wav"
 
-        assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
+        call_log = []
+        assert 'vocals.wav' in transcript.isolate_vocals(call_log, self.fixture('short.mp3'), 'build')
 
         transcript.demucs_separate = demucs_separate
 
@@ -56,14 +57,18 @@ class TestTranscript(TestBase):
         """Check real call for isolate_vocals function."""
         from voice_transcription import transcript
 
-        assert 'vocals.wav' in transcript.isolate_vocals(self.fixture('short.mp3'), 'build')
+        call_log = []
+        assert 'vocals.wav' in transcript.isolate_vocals(call_log, self.fixture('short.mp3'), 'build')
 
     @pytest.mark.longrunning
     def test_transcribe(self):
         """Check transcribe function."""
         from voice_transcription import transcript
 
+        call_log = []
+
         segments, info, waveform = transcript.transcribe(
+          call_log,
           transcript.MODEL,
           transcript.DEVICE,
           self.fixture('vocals.wav'),
@@ -72,7 +77,7 @@ class TestTranscript(TestBase):
 
         # print(segments)
         # print(info)
-        word_timestamps = transcript.forced_alignment(transcript.DEVICE, segments, info, waveform)
+        word_timestamps = transcript.forced_alignment(call_log, transcript.DEVICE, segments, info, waveform)
         assert len(word_timestamps) > 1
 
-        assert transcript.to_mono(waveform, self.build('mono.wav')) is None
+        assert transcript.to_mono(call_log, waveform, self.build('mono.wav')) is None

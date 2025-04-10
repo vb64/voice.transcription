@@ -21,7 +21,7 @@ PIP = $(PYTHON) -m pip install
 
 
 all:
-	$(PYTHON) voice_transcription/audio_splitter.py fixtures/short.mp3
+	$(PYTHON) cli.py fixtures/short.mp3
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
