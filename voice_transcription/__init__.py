@@ -1,4 +1,5 @@
 """Voice transcription stuff."""
+import time
 import torch
 
 
@@ -24,3 +25,14 @@ TTYPES = {
   Device.Cpu: torch.float32,
   Device.Gpu: torch.float16,
 }
+
+
+def add_log(call_log, name, start_time):
+    """Add record to call log."""
+    now = time.time()
+    seconds = None
+    if start_time is not None:
+        seconds = int(now - start_time)
+    call_log.append((name, seconds))
+
+    return now
