@@ -1,6 +1,5 @@
 """Voice transcription stuff."""
 import os
-import sys
 import time
 
 import torch
@@ -16,7 +15,7 @@ from ctc_forced_aligner import (
   preprocess_text,
 )
 
-from .cli_options import PARSER, VERSION, COPYRIGHTS
+from .cli_options import VERSION, COPYRIGHTS
 from .language import process_language_arg, LANGS_TO_ISO
 from . import Model, Device, MTYPES, TTYPES
 
@@ -30,8 +29,9 @@ MODEL = Model.Large
 BATCH_SIZE = 8
 
 
-def isolate_vocals(input_file, folder):
+def isolate_vocals(call_log, input_file, folder):
     """Isolate vocals from the rest of the audio."""
+    start_time = add_log(call_log, "isolate_vocals", None)
     demucs_separate([
       "-n", "htdemucs",
       "--two-stems", "vocals",
@@ -39,6 +39,7 @@ def isolate_vocals(input_file, folder):
       "--device", DEVICE,
       input_file
     ])
+    add_log(call_log, "demucs_separate", start_time)
 
     return os.path.join(
         folder,
@@ -48,25 +49,22 @@ def isolate_vocals(input_file, folder):
     )
 
 
-def transcribe(model_name, device, vocal_target, language):
+def transcribe(call_log, model_name, device, vocal_target, language):
     """Transcribe the audio file."""
-    start_time = time.time()
+    start_time = add_log(call_log, "Transcribe", None)
 
     whisper_model = faster_whisper.WhisperModel(
       model_name,
       device=device,
       compute_type=MTYPES[device]
     )
-    print("\nWhisperModel: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "WhisperModel", start_time)
 
     whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
-    print("BatchedInferencePipeline: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "BatchedInferencePipeline", start_time)
 
     audio_waveform = faster_whisper.decode_audio(vocal_target)
-    print("Decode_audio: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "decode_audio", start_time)
 
     # args.suppress_numerals == False
     suppress_tokens = [-1]
@@ -85,25 +83,20 @@ def transcribe(model_name, device, vocal_target, language):
           suppress_tokens=suppress_tokens,
           vad_filter=True,
         )
-    print("Transcribe: {} sec".format(int(time.time() - start_time)))
-
-    # clear gpu vram
-    # del whisper_model, whisper_pipeline
-    # torch.cuda.empty_cache()
-    # print("clear gpu vram: {} sec".format(int(time.time() - start_time)))
+    add_log(call_log, "transcribe", start_time)
 
     return (transcript_segments, info, audio_waveform)
 
 
-def forced_alignment(device, segments, info, waveform):  # pylint: disable=too-many-locals
+def forced_alignment(call_log, device, segments, info, waveform):  # pylint: disable=too-many-locals
     """Force alignment."""
-    start_time = time.time()
+    start_time = add_log(call_log, "forced_alignment", None)
 
     alignment_model, alignment_tokenizer = load_alignment_model(
       device,
       dtype=TTYPES[device]
     )
-    print("load_alignment_model: {} sec".format(int(time.time() - start_time)))
+    start_time = add_log(call_log, "load_alignment_model", start_time)
 
     emissions, stride = generate_emissions(
       alignment_model,
@@ -112,56 +105,71 @@ def forced_alignment(device, segments, info, waveform):  # pylint: disable=too-m
       .to(alignment_model.device),
       batch_size=BATCH_SIZE,
     )
-    start_time = time.time()
-    print("generate_emissions: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "generate_emissions", start_time)
 
     full_transcript = "".join(segment.text for segment in segments)
-    print("full_transcript: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "full_transcript", start_time)
 
     tokens_starred, text_starred = preprocess_text(
       full_transcript,
       romanize=True,
       language=LANGS_TO_ISO[info.language],
     )
-    print("preprocess_text: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "preprocess_text", start_time)
 
     segments, scores, blank_token = get_alignments(
       emissions,
       tokens_starred,
       alignment_tokenizer,
     )
-    print("get_alignments: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "get_alignments", start_time)
 
     spans = get_spans(tokens_starred, segments, blank_token)
-    print("get_spans: {} sec".format(int(time.time() - start_time)))
-    start_time = time.time()
+    start_time = add_log(call_log, "get_spans", start_time)
 
     word_timestamps = postprocess_results(text_starred, spans, stride, scores)
-    print("postprocess_results: {} sec".format(int(time.time() - start_time)))
+    add_log(call_log, "postprocess_results", start_time)
 
     return word_timestamps
 
 
-def to_mono(waveform, file_name):
+def to_mono(call_log, waveform, file_name):
     """Convert audio to mono for NeMo combatibility."""
-    start_time = time.time()
+    start_time = add_log(call_log, "to_mono", None)
     torchaudio.save(
       file_name,
       torch.from_numpy(waveform).unsqueeze(0).float(),
       16000,
       channels_first=True
     )
-    print("to_mono: {} sec".format(int(time.time() - start_time)))
+    add_log(call_log, "to_mono", start_time)
+
+
+def add_log(call_log, name, start_time):
+    """Add record to call log."""
+    now = time.time()
+    seconds = None
+    if start_time is not None:
+        seconds = int(now - start_time)
+    call_log.append((name, seconds))
+
+    return now
+
+
+def dump_log(call_log):
+    """Print out call log."""
+    for name, seconds in call_log:
+        if seconds is None:
+            print("# Call: {}".format(name))
+        else:
+            print("{}: {} sec".format(name, seconds))
 
 
 def main(options):
     """Entry point."""
     start_time = time.time()
     print("Voice to text tool v.{}. {}".format(VERSION, COPYRIGHTS))
+    call_log = []
 
     lang = process_language_arg(LANGUAGE, MODEL)
 
@@ -171,16 +179,13 @@ def main(options):
       lang
     ))
 
-    vocal_target = isolate_vocals(options.input_file, TEMP_DIR)
-    segments, info, waveform = transcribe(MODEL, DEVICE, vocal_target, lang)
+    vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
+    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang)
     # word_timestamps =
-    forced_alignment(DEVICE, segments, info, waveform)
-    to_mono(waveform, os.path.join(TEMP_DIR, "mono_file.wav"))
+    forced_alignment(call_log, DEVICE, segments, info, waveform)
+    to_mono(call_log, waveform, os.path.join(TEMP_DIR, "mono_file.wav"))
 
+    dump_log(call_log)
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
     return 0
-
-
-if __name__ == '__main__':  # pragma: no cover
-    sys.exit(main(PARSER.parse_args()))
