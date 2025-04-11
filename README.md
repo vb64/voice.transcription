@@ -26,3 +26,11 @@ sudo apt update
 sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg perl
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+
+```bibtex
+@unpublished{hassouna2024whisperdiarization,
+  title={Whisper Diarization: Speaker Diarization Using OpenAI Whisper},
+  author={Ashraf, Mahmoud},
+  year={2024}
+}
+```
