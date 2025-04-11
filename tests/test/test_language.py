@@ -16,6 +16,8 @@ class TestLanguage(TestBase):
         from voice_transcription import Model
 
         assert process_language_arg('ru', Model.Large) == 'ru'
+        assert process_language_arg(None, Model.Large) is None
+        assert process_language_arg("burmese", Model.Large) == "my"
 
         with pytest.raises(ValueError) as err:
             process_language_arg('ru', 'large.en')
