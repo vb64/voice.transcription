@@ -1,5 +1,18 @@
 # Настройки whisper-diarization
 
+## Проблема с вызовом perl в venv.
+
+В файле `venv\Lib\site-packages\ctc_forced_aligner\text_utils.py` в функции `get_uroman_tokens` строку 
+
+```python
+cmd = ["perl", os.path.join(UROMAN_PATH, "uroman.pl")]
+```
+заменить на
+
+```python
+cmd = ["D:/Perl/perl/bin/perl.exe", os.path.join(UROMAN_PATH, "uroman.pl")]
+```
+
 ## Проблема с вызовом python в venv.
 
 [Request](https://github.com/MahmoudAshraf97/whisper-diarization/issues/317) for --python_bin command line option.

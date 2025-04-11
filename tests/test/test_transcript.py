@@ -36,6 +36,9 @@ class TestTranscript(TestBase):
         to_mono = transcript.to_mono
         transcript.to_mono = lambda call_log, waveform, file_name: None
 
+        map_speakers = transcript.map_speakers
+        transcript.map_speakers = lambda call_log, rttm_file, word_timestamps: None
+
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
@@ -43,6 +46,7 @@ class TestTranscript(TestBase):
         transcript.forced_alignment = forced_alignment
         transcript.to_mono = to_mono
         transcript.diarize = diarize
+        transcript.map_speakers = map_speakers
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -55,6 +59,15 @@ class TestTranscript(TestBase):
         assert 'vocals.wav' in transcript.isolate_vocals(call_log, self.fixture('short.mp3'), 'build')
 
         transcript.demucs_separate = demucs_separate
+
+    def test_dump_log(self):
+        """Check dump_log function."""
+        from voice_transcription.transcript import dump_log
+
+        assert dump_log([
+          ('xxx', None),
+          ('yyy', 10),
+        ]) is None
 
     @pytest.mark.longrunning
     def test_isolate_vocals_real(self):
@@ -85,3 +98,7 @@ class TestTranscript(TestBase):
         assert len(word_timestamps) > 1
 
         assert transcript.to_mono(call_log, waveform, self.build('mono.wav')) is None
+
+        rttm_file = self.fixture('nemo', "pred_rttms", "mono.rttm")
+        ssm = transcript.map_speakers(call_log, rttm_file, word_timestamps)
+        assert len(ssm) > 1

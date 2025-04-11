@@ -18,6 +18,7 @@ from ctc_forced_aligner import (
 from .cli_options import VERSION, COPYRIGHTS
 from .language import process_language_arg, LANGS_TO_ISO
 from .nemo_msdd import diarize
+from .speaker_mapping import map_speakers
 from . import Model, Device, MTYPES, TTYPES, add_log
 
 LANGUAGE = 'ru'
@@ -171,12 +172,14 @@ def main(options):
 
     vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
     segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang)
-    # word_timestamps =
-    forced_alignment(call_log, DEVICE, segments, info, waveform)
+    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform)
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
     diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
+    rttm_file = os.path.join(TEMP_DIR, "pred_rttms", "mono_file.rttm")
+    ssm = map_speakers(call_log, rttm_file, word_timestamps)
 
+    print(ssm)
     dump_log(call_log)
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
