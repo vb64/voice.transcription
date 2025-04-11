@@ -19,17 +19,6 @@ cd voice.transcription
 make setup PYTHON_BIN=C:\полный\путь\на\3.10\python.exe
 ```
 
-В файле `venv\Lib\site-packages\ctc_forced_aligner\text_utils.py` в функции `get_uroman_tokens` строку 
-
-```python
-cmd = ["perl", os.path.join(UROMAN_PATH, "uroman.pl")]
-```
-заменить на
-
-```python
-cmd = ["D:/Perl/perl/bin/perl.exe", os.path.join(UROMAN_PATH, "uroman.pl")]
-```
-
 ## Настройка под Linux.
 
 ```
