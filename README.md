@@ -11,21 +11,59 @@
 - [Perl](https://strawberryperl.com/)
 - build tools by installing [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
 
+## Настройка под Ubuntu. 22.04
+
+```
+ssh -l vit -i ~/.ssh/ed25519 158.160.yyy.xxx
+sudo apt update
+sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+## Установка программы
+
 Затем:
 
 ```bash
 git clone https://github.com/vb64/voice.transcription.git
 cd voice.transcription
-make setup PYTHON_BIN=C:\полный\путь\на\3.10\python.exe
+make setup PYTHON_BIN=python3
 ```
 
-## Настройка под Linux.
+## screen
 
+```bash
+screen -S transcript
+Ctrl+a и d
+screen -ls
+screen -r
 ```
-sudo apt update
-sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg perl
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+## Первоначальная загрузка моделей
+
+В screen:
+
+```bash
+make
 ```
+
+## Загрузка файлов
+
+```bash
+scp -i ~/.ssh/ed25519 filname vit@158.160.yyy.xxx:~/voice.transcription/build/
+```
+
+## Конвертация
+
+Прописать в makefile нужные файлы в таргете `mp3`.
+
+В screen:
+
+```bash
+make mp3
+```
+
+## Цитаты
 
 ```bibtex
 @unpublished{hassouna2024whisperdiarization,
