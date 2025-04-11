@@ -10,7 +10,7 @@ def get_word_ts_anchor(s, e, option="start"):
     """Get word timestamp anchor."""
     if option == "end":
         return e
-    elif option == "mid":
+    if option == "mid":
         return (s + e) / 2
     return s
 
@@ -18,7 +18,7 @@ def get_word_ts_anchor(s, e, option="start"):
 def get_first_word_idx_of_sentence(word_idx, word_list, speaker_list, max_words):
     """Get first word index of sentence."""
     is_word_sentence_end = (
-        lambda x: x >= 0 and word_list[x][-1] in SENTENCE_END
+        lambda x: x >= 0 and word_list[x][-1] in SENTENCE_END  # pylint: disable=unnecessary-lambda-assignment
     )
     left_idx = word_idx
     while (
@@ -35,7 +35,7 @@ def get_first_word_idx_of_sentence(word_idx, word_list, speaker_list, max_words)
 def get_last_word_idx_of_sentence(word_idx, word_list, max_words):
     """Get last word index of sentence."""
     is_word_sentence_end = (
-        lambda x: x >= 0 and word_list[x][-1] in SENTENCE_END
+        lambda x: x >= 0 and word_list[x][-1] in SENTENCE_END  # pylint: disable=unnecessary-lambda-assignment
     )
     right_idx = word_idx
     while (
@@ -87,7 +87,7 @@ def get_realigned_ws_mapping_with_punctuation(
 ):
     """Make punctuation."""
     is_word_sentence_end = (
-        lambda x: x >= 0
+        lambda x: x >= 0  # pylint: disable=unnecessary-lambda-assignment
         and word_speaker_mapping[x]["word"][-1] in SENTENCE_END
     )
     wsp_len = len(word_speaker_mapping)
@@ -145,7 +145,7 @@ def get_realigned_ws_mapping_with_punctuation(
 
 def get_words_speaker_mapping(wrd_ts, spk_ts, word_anchor_option="start"):
     """Make words mapping."""
-    s, e, sp = spk_ts[0]
+    _, e, sp = spk_ts[0]
     wrd_pos, turn_idx = 0, 0
     wrd_spk_mapping = []
     for wrd_dict in wrd_ts:
@@ -158,7 +158,7 @@ def get_words_speaker_mapping(wrd_ts, spk_ts, word_anchor_option="start"):
         while wrd_pos > float(e):
             turn_idx += 1
             turn_idx = min(turn_idx, len(spk_ts) - 1)
-            s, e, sp = spk_ts[turn_idx]
+            _, e, sp = spk_ts[turn_idx]
             if turn_idx == len(spk_ts) - 1:
                 e = get_word_ts_anchor(ws, we, option="end")
         wrd_spk_mapping.append(
@@ -170,7 +170,7 @@ def get_words_speaker_mapping(wrd_ts, spk_ts, word_anchor_option="start"):
 def speaker_timestamps(rttm_file):
     """Make speakers timestamps from Nemo rttm file."""
     speaker_ts = []
-    with open(rttm_file, "r") as f:
+    with open(rttm_file, "r", encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
             line_list = line.split(" ")
