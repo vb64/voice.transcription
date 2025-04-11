@@ -107,8 +107,7 @@ def forced_alignment(call_log, device, segments, info, waveform):  # pylint: dis
       alignment_model,
       torch.from_numpy(waveform)
       .to(alignment_model.dtype)
-      .to(alignment_model.device),
-      batch_size=BATCH_SIZE,
+      .to(alignment_model.device)
     )
     start_time = add_log(call_log, "generate_emissions", start_time)
 
