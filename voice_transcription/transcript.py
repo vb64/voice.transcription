@@ -19,6 +19,8 @@ from .cli_options import VERSION, COPYRIGHTS
 from .language import process_language_arg, LANGS_TO_ISO
 from .nemo_msdd import diarize
 from .speaker_mapping import map_speakers
+from .srt import write_srt
+
 from . import Model, Device, MTYPES, TTYPES, add_log
 
 LANGUAGE = 'ru'
@@ -178,8 +180,9 @@ def main(options):
     diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
     rttm_file = os.path.join(TEMP_DIR, "pred_rttms", "mono_file.rttm")
     ssm = map_speakers(call_log, rttm_file, word_timestamps)
+    srt_file = os.path.splitext(options.input_file)[0] + '.srt'
+    write_srt(call_log, ssm, srt_file)
 
-    print(ssm)
     dump_log(call_log)
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 
