@@ -39,6 +39,9 @@ class TestTranscript(TestBase):
         map_speakers = transcript.map_speakers
         transcript.map_speakers = lambda call_log, rttm_file, word_timestamps: None
 
+        write_srt = transcript.write_srt
+        transcript.write_srt = lambda call_log,  ssm, srt_file: None
+
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
@@ -47,6 +50,7 @@ class TestTranscript(TestBase):
         transcript.to_mono = to_mono
         transcript.diarize = diarize
         transcript.map_speakers = map_speakers
+        transcript.write_srt = write_srt
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -102,3 +106,6 @@ class TestTranscript(TestBase):
         rttm_file = self.fixture('nemo', "pred_rttms", "mono.rttm")
         ssm = transcript.map_speakers(call_log, rttm_file, word_timestamps)
         assert len(ssm) > 1
+
+        srt_file = self.build('short.srt')
+        assert transcript.write_srt(call_log, ssm, srt_file) is None
