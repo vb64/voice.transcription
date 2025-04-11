@@ -33,12 +33,14 @@ def write_srt(call_log, transcript, file_name):
 
     for i, segment in enumerate(transcript, start=1):
         # write srt lines
-        print("{}\n".format(i), file=out)
+        print(i, file=out)
         print(
           format_timestamp(segment['start_time'], always_include_hours=True, decimal_marker=','),
           "-->",
-          format_timestamp(segment['end_time'], always_include_hours=True, decimal_marker=','),
-          "\n",
+          "{}".format(format_timestamp(segment['end_time'], always_include_hours=True, decimal_marker=',')),
+          file=out
+        )
+        print(
           "{}:".format(segment['speaker']),
           "{}\n".format(segment['text'].strip().replace('-->', '->')),
           file=out
