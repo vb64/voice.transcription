@@ -8,7 +8,8 @@ def format_timestamp(
     decimal_marker: str = "."
 ):
     """Convert timestamp to string."""
-    assert milliseconds >= 0, "non-negative timestamp expected"
+    if milliseconds < 0:
+        raise ValueError("Non-negative timestamp expected: {}".format(milliseconds))
 
     hours = milliseconds // 3_600_000
     milliseconds -= hours * 3_600_000
@@ -28,18 +29,20 @@ def format_timestamp(
 def write_srt(call_log, transcript, file_name):
     """Write a transcript to a file in SRT format."""
     start_time = add_log(call_log, "write_srt", None)
-    srt = open(file_name, "w", encoding="utf-8")
+    out = open(file_name, "w", encoding="utf-8")
 
     for i, segment in enumerate(transcript, start=1):
         # write srt lines
+        print("{}\n".format(i), file=out)
         print(
-            f"{i}\n"
-            f"{format_timestamp(segment['start_time'], always_include_hours=True, decimal_marker=',')} --> "
-            f"{format_timestamp(segment['end_time'], always_include_hours=True, decimal_marker=',')}\n"
-            f"{segment['speaker']}: {segment['text'].strip().replace('-->', '->')}\n",
-            file=srt,
-            flush=True,
+          format_timestamp(segment['start_time'], always_include_hours=True, decimal_marker=','),
+          "-->",
+          format_timestamp(segment['end_time'], always_include_hours=True, decimal_marker=','),
+          "\n",
+          "{}:".format(segment['speaker']),
+          "{}\n".format(segment['text'].strip().replace('-->', '->')),
+          file=out
         )
 
-    srt.close()
+    out.close()
     add_log(call_log, "done write_srt", start_time)
