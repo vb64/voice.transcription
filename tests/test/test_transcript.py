@@ -60,6 +60,15 @@ class TestTranscript(TestBase):
 
         transcript.demucs_separate = demucs_separate
 
+    def test_dump_log(self):
+        """Check dump_log function."""
+        from voice_transcription.transcript import dump_log
+
+        assert dump_log([
+          ('xxx', None),
+          ('yyy', 10),
+        ]) is None
+
     @pytest.mark.longrunning
     def test_isolate_vocals_real(self):
         """Check real call for isolate_vocals function."""
