@@ -1,6 +1,7 @@
 """Voice transcription stuff."""
 import os
 import time
+import shutil
 
 import torch
 import torchaudio
@@ -158,6 +159,17 @@ def dump_log(call_log):
             print("{}: {} sec".format(name, seconds))
 
 
+def cleanup(path: str):
+    """Remove path could either be relative or absolute."""
+    # check if file or directory exists
+    if os.path.isfile(path) or os.path.islink(path):
+        # remove file
+        os.remove(path)
+    elif os.path.isdir(path):
+        # remove directory and all its content
+        shutil.rmtree(path)
+
+
 def main(options):
     """Entry point."""
     start_time = time.time()
@@ -183,6 +195,7 @@ def main(options):
     srt_file = os.path.splitext(options.input_file)[0] + '.srt'
     write_srt(call_log, ssm, srt_file)
 
+    cleanup(TEMP_DIR)
     dump_log(call_log)
     print("\nTotal: {} sec".format(int(time.time() - start_time)))
 

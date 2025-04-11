@@ -2,6 +2,8 @@
 
 make test T=test_transcript.py
 """
+import os
+from pathlib import Path
 import pytest
 
 from . import TestBase
@@ -42,6 +44,9 @@ class TestTranscript(TestBase):
         write_srt = transcript.write_srt
         transcript.write_srt = lambda call_log,  ssm, srt_file: None
 
+        cleanup = transcript.cleanup
+        transcript.cleanup = lambda tmp_file: None
+
         assert transcript.main(self.options) == 0
 
         transcript.isolate_vocals = isolate_vocals
@@ -51,6 +56,7 @@ class TestTranscript(TestBase):
         transcript.diarize = diarize
         transcript.map_speakers = map_speakers
         transcript.write_srt = write_srt
+        transcript.cleanup = cleanup
 
     def test_isolate_vocals(self):
         """Check isolate_vocals function."""
@@ -72,6 +78,17 @@ class TestTranscript(TestBase):
           ('xxx', None),
           ('yyy', 10),
         ]) is None
+
+    def test_cleanup(self):
+        """Check cleanup function."""
+        from voice_transcription.transcript import cleanup
+
+        os.makedirs(self.build('tmp'), exist_ok=True)
+        Path(self.build('tmp', 'file1.txt')).touch(exist_ok=True)
+        Path(self.build('tmp', 'file2.txt')).touch(exist_ok=True)
+        assert cleanup(self.build('tmp', 'file1.txt')) is None
+        assert cleanup(self.build('tmp')) is None
+        assert cleanup(self.build('not_exist')) is None
 
     @pytest.mark.longrunning
     def test_isolate_vocals_real(self):
