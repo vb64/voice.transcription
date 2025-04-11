@@ -63,6 +63,12 @@ scp -i ~/.ssh/ed25519 filname vit@158.160.yyy.xxx:~/voice.transcription/build/
 make mp3
 ```
 
+## Выгрузка srt
+
+```bash
+scp -i ~/.ssh/ed25519 vit@158.160.yyy.xxx:~/voice.transcription/build/*.srt ./
+```
+
 ## Цитаты
 
 ```bibtex

@@ -34,9 +34,9 @@ def add_log(call_log, name, start_time):
 
     if start_time is not None:
         seconds = int(now - start_time)
-        print("{}: {} sec".format(name, seconds))
-    else:
-        print("# Call: {}".format(name))
+    #     print("{}: {} sec".format(name, seconds))
+    # else:
+    #     print("# Call: {}".format(name))
 
     call_log.append((name, seconds))
 
