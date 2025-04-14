@@ -127,3 +127,19 @@ class TestTranscript(TestBase):
 
         srt_file = self.build('short.srt')
         assert transcript.write_srt(call_log, ssm, srt_file) is None
+
+    @pytest.mark.longrunning
+    def test_transcribe_batch(self):
+        """Check transcribe function."""
+        from voice_transcription import transcript
+
+        call_log = []
+
+        assert len(transcript.transcribe(
+          call_log,
+          transcript.MODEL,
+          transcript.DEVICE,
+          self.fixture('vocals.wav'),
+          'ru',
+          2
+        )) == 3
