@@ -61,9 +61,6 @@ def transcribe(call_log, model_name, device, vocal_target, language, batch_size)
     )
     start_time = add_log(call_log, "WhisperModel", start_time)
 
-    whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
-    start_time = add_log(call_log, "BatchedInferencePipeline", start_time)
-
     audio_waveform = faster_whisper.decode_audio(vocal_target)
     start_time = add_log(call_log, "decode_audio", start_time)
 
@@ -71,6 +68,7 @@ def transcribe(call_log, model_name, device, vocal_target, language, batch_size)
     suppress_tokens = [-1]
 
     if batch_size > 0:
+        whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
         transcript_segments, info = whisper_pipeline.transcribe(
           audio_waveform,
           language,
