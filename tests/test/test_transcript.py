@@ -27,7 +27,7 @@ class TestTranscript(TestBase):
         transcript.isolate_vocals = lambda call_log, input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda call_log, model_name, device, vocal_target, lang: (None, None, None)
+        transcript.transcribe = lambda call_log, model_name, device, vocal_target, lang, bs: (None, None, None)
 
         forced_alignment = transcript.forced_alignment
         transcript.forced_alignment = lambda call_log, device, segments, info, waveform: None
@@ -110,7 +110,8 @@ class TestTranscript(TestBase):
           transcript.MODEL,
           transcript.DEVICE,
           self.fixture('vocals.wav'),
-          'ru'
+          'ru',
+          self.options.batch_size
         )
 
         # print(segments)

@@ -29,10 +29,6 @@ TEMP_DIR = "temp_outputs"
 DEVICE = Device.Cpu
 MODEL = Model.Large
 
-# Batch size for batched inference, reduce if you run out of memory,
-# set to 0 for original whisper longform inference
-BATCH_SIZE = 8
-
 
 def isolate_vocals(call_log, input_file, folder):
     """Isolate vocals from the rest of the audio."""
@@ -54,7 +50,7 @@ def isolate_vocals(call_log, input_file, folder):
     )
 
 
-def transcribe(call_log, model_name, device, vocal_target, language):
+def transcribe(call_log, model_name, device, vocal_target, language, batch_size):
     """Transcribe the audio file."""
     start_time = add_log(call_log, "Transcribe", None)
 
@@ -74,12 +70,12 @@ def transcribe(call_log, model_name, device, vocal_target, language):
     # args.suppress_numerals == False
     suppress_tokens = [-1]
 
-    if BATCH_SIZE > 0:
+    if batch_size > 0:
         transcript_segments, info = whisper_pipeline.transcribe(
           audio_waveform,
           language,
           suppress_tokens=suppress_tokens,
-          batch_size=BATCH_SIZE,
+          batch_size=batch_size,
         )
     else:
         transcript_segments, info = whisper_model.transcribe(
@@ -184,7 +180,7 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
-    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang)
+    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.batch_size)
     word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform)
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
