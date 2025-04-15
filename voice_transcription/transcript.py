@@ -87,7 +87,7 @@ def transcribe(call_log, model_name, device, vocal_target, language, batch_size)
     return (transcript_segments, info, audio_waveform)
 
 
-def forced_alignment(call_log, device, segments, info, waveform):  # pylint: disable=too-many-locals
+def forced_alignment(call_log, device, segments, info, waveform, torch_batch):  # pylint: disable=too-many-locals
     """Force alignment."""
     start_time = add_log(call_log, "forced_alignment", None)
 
@@ -101,7 +101,8 @@ def forced_alignment(call_log, device, segments, info, waveform):  # pylint: dis
       alignment_model,
       torch.from_numpy(waveform)
       .to(alignment_model.dtype)
-      .to(alignment_model.device)
+      .to(alignment_model.device),
+      batch_size=torch_batch,
     )
     start_time = add_log(call_log, "generate_emissions", start_time)
 
@@ -179,7 +180,7 @@ def main(options):
 
     vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
     segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.whisper_batch)
-    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform)
+    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
     diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
