@@ -17,8 +17,14 @@ PARSER.add_argument(
   help="Forcing the number of speakers, default 0 (auto detection)",
 )
 PARSER.add_argument(
-  "--batch_size",
+  "--whisper_batch",
   type=int,
   default=0,
-  help="Batch size for batched inference, set to 8 for 16Gb RAM. Default 0 (original whisper longform inference).",
+  help="Batch size for whisper batched inference. Default 0 (original whisper longform inference).",
+)
+PARSER.add_argument(
+  "--torch_batch",
+  type=int,
+  default=0,
+  help="Torch batch size. Default 0 (disabled).",
 )

@@ -111,7 +111,7 @@ class TestTranscript(TestBase):
           transcript.DEVICE,
           self.fixture('vocals.wav'),
           'ru',
-          self.options.batch_size
+          self.options.whisper_batch
         )
 
         # print(segments)

@@ -178,7 +178,7 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
-    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.batch_size)
+    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.whisper_batch)
     word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform)
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
