@@ -7,6 +7,7 @@
 # Zond 8 RAM 22.04 192.168.10.11
 
 batch: wisper 0 torch 0 - 
+batch: wisper 2 torch 0 - 
 
 # Zond 8 RAM 24.04 192.168.10.13
 
