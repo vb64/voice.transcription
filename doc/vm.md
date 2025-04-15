@@ -15,4 +15,5 @@ batch: wisper 0 torch 0 -
 
 # Yandex 16 RAM
 
-batch: wisper 0 torch 0 - 
+batch: wisper 0 torch 0 - 8677 сек.
+batch: wisper 8 torch 4 - 
