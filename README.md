@@ -16,7 +16,7 @@
 ```
 ssh -l vit -i C:\Users\vit\.ssh\ed25519 158.160.yyy.xxx
 sudo apt update
-sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg screen
+sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg screen curl
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
