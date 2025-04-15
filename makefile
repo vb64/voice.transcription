@@ -24,7 +24,7 @@ all:
 	$(PYTHON) cli.py fixtures/short.mp3
 
 mp3:
-	$(PYTHON) cli.py --batch_size 8 build/xxx.mp3
+	$(PYTHON) cli.py --whisper_batch 8 --torch_batch 4 build/xxx.mp3
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
