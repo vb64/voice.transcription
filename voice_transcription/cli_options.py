@@ -28,3 +28,8 @@ PARSER.add_argument(
   default=0,
   help="Torch batch size. Default 0 (disabled).",
 )
+PARSER.add_argument(
+    "--extract_vocals",
+    action="store_true",
+    help="Filter out music and other non voices from audio. Requires more time for processing."
+)

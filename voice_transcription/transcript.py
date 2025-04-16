@@ -178,13 +178,19 @@ def main(options):
       lang
     ))
 
-    vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    vocal_target = options.input_file
+    if options.extract_vocals:
+        vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
+
     segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.whisper_batch)
-    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)
+
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
     diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
+
     rttm_file = os.path.join(TEMP_DIR, "pred_rttms", "mono_file.rttm")
+    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)
     ssm = map_speakers(call_log, rttm_file, word_timestamps)
     srt_file = os.path.splitext(options.input_file)[0] + '.srt'
     write_srt(call_log, ssm, srt_file)
