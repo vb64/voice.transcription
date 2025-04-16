@@ -12,9 +12,9 @@ batch: wisper 2 torch 2 - fail diarize
 
 # Zond 8 RAM 24.04 192.168.10.13
 
-batch: wisper 0 torch 0 - 6278
+batch: wisper 0 torch 0 - 6278 / 
 batch: wisper 4 torch 0 - fail diarize
-batch: wisper 2 torch 2 - 
+batch: wisper 2 torch 2 - fail diarize
 
 # Yandex 16 RAM 22.04
 
