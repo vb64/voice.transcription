@@ -22,5 +22,4 @@ batch: wisper 8 torch 4 - 6382
 
 # Yandex 16 RAM 24.04
 
-batch: wisper 0 torch 0 - 
 batch: wisper 8 torch 4 - 
