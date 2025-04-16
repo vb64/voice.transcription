@@ -29,10 +29,6 @@ TEMP_DIR = "temp_outputs"
 DEVICE = Device.Cpu
 MODEL = Model.Large
 
-# Batch size for batched inference, reduce if you run out of memory,
-# set to 0 for original whisper longform inference
-BATCH_SIZE = 8
-
 
 def isolate_vocals(call_log, input_file, folder):
     """Isolate vocals from the rest of the audio."""
@@ -54,7 +50,7 @@ def isolate_vocals(call_log, input_file, folder):
     )
 
 
-def transcribe(call_log, model_name, device, vocal_target, language):
+def transcribe(call_log, model_name, device, vocal_target, language, batch_size):
     """Transcribe the audio file."""
     start_time = add_log(call_log, "Transcribe", None)
 
@@ -65,21 +61,19 @@ def transcribe(call_log, model_name, device, vocal_target, language):
     )
     start_time = add_log(call_log, "WhisperModel", start_time)
 
-    whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
-    start_time = add_log(call_log, "BatchedInferencePipeline", start_time)
-
     audio_waveform = faster_whisper.decode_audio(vocal_target)
     start_time = add_log(call_log, "decode_audio", start_time)
 
     # args.suppress_numerals == False
     suppress_tokens = [-1]
 
-    if BATCH_SIZE > 0:
+    if batch_size > 0:
+        whisper_pipeline = faster_whisper.BatchedInferencePipeline(whisper_model)
         transcript_segments, info = whisper_pipeline.transcribe(
           audio_waveform,
           language,
           suppress_tokens=suppress_tokens,
-          batch_size=BATCH_SIZE,
+          batch_size=batch_size,
         )
     else:
         transcript_segments, info = whisper_model.transcribe(
@@ -93,7 +87,7 @@ def transcribe(call_log, model_name, device, vocal_target, language):
     return (transcript_segments, info, audio_waveform)
 
 
-def forced_alignment(call_log, device, segments, info, waveform):  # pylint: disable=too-many-locals
+def forced_alignment(call_log, device, segments, info, waveform, torch_batch):  # pylint: disable=too-many-locals
     """Force alignment."""
     start_time = add_log(call_log, "forced_alignment", None)
 
@@ -107,7 +101,8 @@ def forced_alignment(call_log, device, segments, info, waveform):  # pylint: dis
       alignment_model,
       torch.from_numpy(waveform)
       .to(alignment_model.dtype)
-      .to(alignment_model.device)
+      .to(alignment_model.device),
+      batch_size=torch_batch,
     )
     start_time = add_log(call_log, "generate_emissions", start_time)
 
@@ -184,8 +179,8 @@ def main(options):
     ))
 
     vocal_target = isolate_vocals(call_log, options.input_file, TEMP_DIR)
-    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang)
-    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform)
+    segments, info, waveform = transcribe(call_log, MODEL, DEVICE, vocal_target, lang, options.whisper_batch)
+    word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
     diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)

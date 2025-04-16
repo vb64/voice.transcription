@@ -27,10 +27,10 @@ class TestTranscript(TestBase):
         transcript.isolate_vocals = lambda call_log, input_file, folder: "xxx.wav"
 
         transcribe = transcript.transcribe
-        transcript.transcribe = lambda call_log, model_name, device, vocal_target, lang: (None, None, None)
+        transcript.transcribe = lambda call_log, model_name, device, vocal_target, lang, bs: (None, None, None)
 
         forced_alignment = transcript.forced_alignment
-        transcript.forced_alignment = lambda call_log, device, segments, info, waveform: None
+        transcript.forced_alignment = lambda call_log, device, segments, info, waveform, batch: None
 
         diarize = transcript.diarize
         transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path: None
@@ -110,12 +110,18 @@ class TestTranscript(TestBase):
           transcript.MODEL,
           transcript.DEVICE,
           self.fixture('vocals.wav'),
-          'ru'
+          'ru',
+          self.options.whisper_batch
         )
 
-        # print(segments)
-        # print(info)
-        word_timestamps = transcript.forced_alignment(call_log, transcript.DEVICE, segments, info, waveform)
+        word_timestamps = transcript.forced_alignment(
+          call_log,
+          transcript.DEVICE,
+          segments,
+          info,
+          waveform,
+          self.options.torch_batch
+        )
         assert len(word_timestamps) > 1
 
         assert transcript.to_mono(call_log, waveform, self.build('mono.wav')) is None
@@ -126,3 +132,19 @@ class TestTranscript(TestBase):
 
         srt_file = self.build('short.srt')
         assert transcript.write_srt(call_log, ssm, srt_file) is None
+
+    @pytest.mark.longrunning
+    def test_transcribe_batch(self):
+        """Check transcribe function."""
+        from voice_transcription import transcript
+
+        call_log = []
+
+        assert len(transcript.transcribe(
+          call_log,
+          transcript.MODEL,
+          transcript.DEVICE,
+          self.fixture('vocals.wav'),
+          'ru',
+          2
+        )) == 3
