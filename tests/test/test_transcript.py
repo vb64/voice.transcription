@@ -49,6 +49,9 @@ class TestTranscript(TestBase):
 
         assert transcript.main(self.options) == 0
 
+        self.options.extract_vocals = True
+        assert transcript.main(self.options) == 0
+
         transcript.isolate_vocals = isolate_vocals
         transcript.transcribe = transcribe
         transcript.forced_alignment = forced_alignment
