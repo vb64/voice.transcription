@@ -82,7 +82,7 @@ def convert_audio(input_file, output_file):
     out_format = os.path.splitext(output_file)[1][1:]
 
     audio = AudioSegment.from_file(input_file, inp_format)
-    print(inp_format, '->', out_format, audio.duration_seconds, 'sec')
+    # print(inp_format, '->', out_format, audio.duration_seconds, 'sec')
     audio.export(output_file, format=out_format)
 
 

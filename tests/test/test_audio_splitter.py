@@ -2,7 +2,7 @@
 
 make test T=test_audio_splitter.py
 """
-import os
+import pytest
 from . import TestBase
 
 
@@ -15,10 +15,11 @@ class TestAudioSplitter(TestBase):
 
         assert main(self.fixture('short.mp3')) is None
 
+    @pytest.mark.longrunning
     def test_convert_audio(self):
         """Check convert_audio function."""
         from voice_transcription.audio_splitter import convert_audio
 
-        inp_file = os.path.join('D:\\', 'tmp', 'April_6_Session_1.aac')
-        out_file = self.build('April_6_Session_1.mp3')
+        inp_file = self.fixture('short.mp3')
+        out_file = self.build('short.wav')
         assert convert_audio(inp_file, out_file) is None
