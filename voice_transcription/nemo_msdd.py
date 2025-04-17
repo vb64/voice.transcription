@@ -9,21 +9,17 @@ from omegaconf import OmegaConf
 from . import add_log
 
 DOMAIN_TYPE = "telephonic"
-CONFIG_LOCAL_DIRECTORY = "nemo_msdd_configs"
 CONFIG_FILE_NAME = f"diar_infer_{DOMAIN_TYPE}.yaml"
-MODEL_CONFIG_PATH = os.path.join(CONFIG_LOCAL_DIRECTORY, CONFIG_FILE_NAME)
 CONFIG_URL = "{}/main/examples/speaker_tasks/diarization/conf/inference/{}".format(
   "https://raw.githubusercontent.com/NVIDIA/NeMo",
   CONFIG_FILE_NAME
 )
 
 
-def create_config(wav_file, output_dir, num_speakers=0):
+def create_config(wav_file, output_dir, config_path, num_speakers=0):
     """Make Nemo config."""
-    config_path = MODEL_CONFIG_PATH
     if not os.path.exists(config_path):
-        os.makedirs(CONFIG_LOCAL_DIRECTORY, exist_ok=True)
-        config_path = wget.download(CONFIG_URL, MODEL_CONFIG_PATH)
+        config_path = wget.download(CONFIG_URL, config_path)
 
     config = OmegaConf.load(config_path)
 
@@ -72,10 +68,10 @@ def create_config(wav_file, output_dir, num_speakers=0):
     return config
 
 
-def diarize(call_log, wav_file, device, num_speakers, temp_path):
+def diarize(call_log, wav_file, device, num_speakers, temp_path, config_path):
     """Initialize NeMo MSDD diarization model."""
     start_time = add_log(call_log, "Nemo", None)
-    config = create_config(wav_file, temp_path, num_speakers=num_speakers)
+    config = create_config(wav_file, temp_path, config_path, num_speakers=num_speakers)
     model = NeuralDiarizer(cfg=config).to(device)
     start_time = add_log(call_log, "NeuralDiarizer", start_time)
 

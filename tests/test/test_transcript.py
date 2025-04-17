@@ -2,8 +2,6 @@
 
 make test T=test_transcript.py
 """
-import os
-from pathlib import Path
 import pytest
 
 from . import TestBase
@@ -33,7 +31,7 @@ class TestTranscript(TestBase):
         transcript.forced_alignment = lambda call_log, device, segments, info, waveform, batch: None
 
         diarize = transcript.diarize
-        transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path: None
+        transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path, config_path: None
 
         to_mono = transcript.to_mono
         transcript.to_mono = lambda call_log, waveform, file_name: None
@@ -81,17 +79,6 @@ class TestTranscript(TestBase):
           ('xxx', None),
           ('yyy', 10),
         ]) is None
-
-    def test_cleanup(self):
-        """Check cleanup function."""
-        from voice_transcription.transcript import cleanup
-
-        os.makedirs(self.build('tmp'), exist_ok=True)
-        Path(self.build('tmp', 'file1.txt')).touch(exist_ok=True)
-        Path(self.build('tmp', 'file2.txt')).touch(exist_ok=True)
-        assert cleanup(self.build('tmp', 'file1.txt')) is None
-        assert cleanup(self.build('tmp')) is None
-        assert cleanup(self.build('not_exist')) is None
 
     @pytest.mark.longrunning
     def test_isolate_vocals_real(self):

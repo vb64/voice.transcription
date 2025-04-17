@@ -1,7 +1,6 @@
 """Voice transcription stuff."""
 import os
 import time
-import shutil
 
 import torch
 import torchaudio
@@ -22,7 +21,7 @@ from .nemo_msdd import diarize
 from .speaker_mapping import map_speakers
 from .srt import write_srt
 
-from . import Model, Device, MTYPES, TTYPES, add_log
+from . import Model, Device, MTYPES, TTYPES, add_log, cleanup
 
 LANGUAGE = 'ru'
 TEMP_DIR = "temp_outputs"
@@ -153,17 +152,6 @@ def dump_log(call_log):
             print("{}: {} sec".format(name, seconds))
 
 
-def cleanup(path: str):
-    """Remove path could either be relative or absolute."""
-    # check if file or directory exists
-    if os.path.isfile(path) or os.path.islink(path):
-        # remove file
-        os.remove(path)
-    elif os.path.isdir(path):
-        # remove directory and all its content
-        shutil.rmtree(path)
-
-
 def main(options):
     """Entry point."""
     start_time = time.time()
@@ -187,7 +175,7 @@ def main(options):
 
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
-    diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
+    diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR, 'nemo.cfg')
 
     rttm_file = os.path.join(TEMP_DIR, "pred_rttms", "mono_file.rttm")
     word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)

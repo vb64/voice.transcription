@@ -2,6 +2,7 @@
 
 make test T=test_nemo_msdd.py
 """
+import os
 import pytest
 
 from . import TestBase
@@ -13,25 +14,14 @@ class TestNemo(TestBase):
     def setUp(self):
         """Set defaults."""
         super().setUp()
-
-        from voice_transcription import nemo_msdd
-
         self.wav = self.fixture('mono.wav')
-        self.model_config_path = nemo_msdd.MODEL_CONFIG_PATH
-        nemo_msdd.MODEL_CONFIG_PATH = self.fixture('nemo_msdd_configs', 'diar_infer_telephonic.yaml')
-
-    def tearDown(self):
-        """Restore defaults."""
-        from voice_transcription import nemo_msdd
-
-        nemo_msdd.MODEL_CONFIG_PATH = self.model_config_path
-        super().tearDown()
+        self.config_path = os.path.join('nemo.config', 'diar_infer_telephonic.yaml')
 
     def test_create_config(self):
         """Check create_config function."""
         from voice_transcription import nemo_msdd
 
-        assert nemo_msdd.create_config(self.wav, 'build', num_speakers=0)
+        assert nemo_msdd.create_config(self.wav, 'build', self.config_path, num_speakers=0)
 
     @pytest.mark.longrunning
     def test_diarize(self):
@@ -40,4 +30,4 @@ class TestNemo(TestBase):
         from voice_transcription import Device
 
         call_log = []
-        assert diarize(call_log, self.wav, Device.Cpu, 2, 'build') == 0
+        assert diarize(call_log, self.wav, Device.Cpu, 2, 'build', self.config_path) == 0
