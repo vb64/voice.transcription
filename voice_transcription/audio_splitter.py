@@ -12,6 +12,14 @@ MIN_SILENCE_LEN = 100  # Minimum length of silence in milliseconds
 SILENCE_THRESHOLD = -40  # Silence threshold in dB
 
 
+class Format:
+    """Audio formats."""
+
+    Wav = 'wav'
+    Aac = 'aac'
+    Mp3 = 'mp3'
+
+
 def save_chunk(chunk, start_time, output_dir, output_format):
     """Save chunk to file."""
     name = "chunk_{}.{}".format(start_time, output_format)
@@ -66,6 +74,11 @@ def split_audio(input_file, output_dir, chunk_length_ms, output_format):
 def main(file_name):
     """Entry point."""
     split_audio(file_name, 'build', CHUNK_LENGTH, 'mp3')
+
+
+def convert_audio(input_file, output_file):
+    """Convert audio according file extensions."""
+    print(input_file, '->', output_file)
 
 
 if __name__ == "__main__":  # pragma: no cover
