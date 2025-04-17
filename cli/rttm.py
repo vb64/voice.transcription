@@ -1,4 +1,4 @@
-"""CLI options."""
+"""Make Nemo rttm files."""
 import argparse
 import os
 import sys
@@ -11,7 +11,7 @@ import faster_whisper
 
 sys.path.insert(1, '.')
 from voice_transcription.nemo_msdd import create_config, diarize
-from voice_transcription import Device, cleanup
+from voice_transcription import Device, cleanup, list_mp3
 
 VERSION = '1.0'
 COPYRIGHTS = 'Copyrights by Vitaly Bogomolov 2025'
@@ -37,14 +37,6 @@ PARSER.add_argument(
   default='nemo.cfg',
   help="Path to Nemo config file.",
 )
-
-
-def list_mp3(folder):
-    result = []
-    for item in [os.path.join(folder, i) for i in os.listdir(folder) if os.path.isfile(os.path.join(folder, i))]:
-        if os.path.splitext(item)[1] == '.mp3':
-            result.append(item)
-    return result
 
 
 def main(options):

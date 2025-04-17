@@ -55,3 +55,12 @@ def cleanup(path: str):
     elif os.path.isdir(path):
         # remove directory and all its content
         shutil.rmtree(path)
+
+
+def list_mp3(folder):
+    """Return list of the mp3 files in given folder."""
+    result = []
+    for item in [os.path.join(folder, i) for i in os.listdir(folder) if os.path.isfile(os.path.join(folder, i))]:
+        if os.path.splitext(item)[1] == '.mp3':
+            result.append(item)
+    return result
