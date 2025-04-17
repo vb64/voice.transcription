@@ -23,6 +23,9 @@ PIP = $(PYTHON) -m pip install
 all:
 	$(PYTHON) cli.py fixtures/short.mp3
 
+aac:
+	$(PYTHON) cli/aac2mp3.py D:/tmp/engels
+
 mp3:
 	$(PYTHON) cli.py --whisper_batch 8 --torch_batch 4 build/xxx.mp3
 
