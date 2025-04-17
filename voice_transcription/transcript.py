@@ -1,7 +1,6 @@
 """Voice transcription stuff."""
 import os
 import time
-import shutil
 
 import torch
 import torchaudio
@@ -22,7 +21,7 @@ from .nemo_msdd import diarize
 from .speaker_mapping import map_speakers
 from .srt import write_srt
 
-from . import Model, Device, MTYPES, TTYPES, add_log
+from . import Model, Device, MTYPES, TTYPES, add_log, cleanup
 
 LANGUAGE = 'ru'
 TEMP_DIR = "temp_outputs"
@@ -151,17 +150,6 @@ def dump_log(call_log):
             print("# Call: {}".format(name))
         else:
             print("{}: {} sec".format(name, seconds))
-
-
-def cleanup(path: str):
-    """Remove path could either be relative or absolute."""
-    # check if file or directory exists
-    if os.path.isfile(path) or os.path.islink(path):
-        # remove file
-        os.remove(path)
-    elif os.path.isdir(path):
-        # remove directory and all its content
-        shutil.rmtree(path)
 
 
 def main(options):
