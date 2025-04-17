@@ -2,6 +2,7 @@
 
 make test T=test_transcript.py
 """
+from pathlib import Path
 import pytest
 
 import faster_whisper
@@ -63,7 +64,7 @@ class TestTranscript(TestBase):
           'ru'
         )
 
-        assert '.srt' in transcript.transcribe(
+        srt = transcript.transcribe(
           self.fixture('vocals.wav'),
           whisper_pipeline,
           whisper_model,
@@ -74,3 +75,5 @@ class TestTranscript(TestBase):
           0,
           'ru'
         )
+        assert '.srt' in srt
+        Path(srt).unlink()
