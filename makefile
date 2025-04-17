@@ -26,6 +26,9 @@ all:
 aac:
 	$(PYTHON) cli/aac2mp3.py build/aac
 
+rttm:
+	$(PYTHON) cli/rttm.py build/mp3
+
 mp3:
 	$(PYTHON) cli.py --whisper_batch 8 --torch_batch 4 build/xxx.mp3
 
