@@ -27,7 +27,7 @@ aac:
 	$(PYTHON) cli/aac2mp3.py build/aac
 
 rttm:
-	$(PYTHON) cli/rttm.py fixtures
+	$(PYTHON) cli/rttm.py --config nemo.config/diar_infer_telephonic.yaml --temp_folder build fixtures
 
 mp3:
 	$(PYTHON) cli.py --whisper_batch 8 --torch_batch 4 build/xxx.mp3
