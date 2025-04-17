@@ -78,7 +78,11 @@ def main(file_name):
 
 def convert_audio(input_file, output_file):
     """Convert audio according file extensions."""
-    print(input_file, '->', output_file)
+    inp_format = os.path.splitext(input_file)[1][1:]
+    out_format = os.path.splitext(output_file)[1][1:]
+
+    audio = AudioSegment.from_file(input_file, inp_format)
+    print(inp_format, '->', out_format, audio.duration_seconds, 'sec')
 
 
 if __name__ == "__main__":  # pragma: no cover
