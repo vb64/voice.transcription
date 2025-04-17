@@ -33,7 +33,7 @@ class TestTranscript(TestBase):
         transcript.forced_alignment = lambda call_log, device, segments, info, waveform, batch: None
 
         diarize = transcript.diarize
-        transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path: None
+        transcript.diarize = lambda call_log, wav_file, device, num_speakers, temp_path, config_path: None
 
         to_mono = transcript.to_mono
         transcript.to_mono = lambda call_log, waveform, file_name: None

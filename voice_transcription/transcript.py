@@ -187,7 +187,7 @@ def main(options):
 
     wav_file = os.path.join(TEMP_DIR, "mono_file.wav")
     to_mono(call_log, waveform, wav_file)
-    diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR)
+    diarize(call_log, wav_file, DEVICE, options.num_speakers, TEMP_DIR, 'nemo.cfg')
 
     rttm_file = os.path.join(TEMP_DIR, "pred_rttms", "mono_file.rttm")
     word_timestamps = forced_alignment(call_log, DEVICE, segments, info, waveform, options.torch_batch)
