@@ -83,6 +83,7 @@ def convert_audio(input_file, output_file):
 
     audio = AudioSegment.from_file(input_file, inp_format)
     print(inp_format, '->', out_format, audio.duration_seconds, 'sec')
+    audio.export(output_file, format=out_format)
 
 
 if __name__ == "__main__":  # pragma: no cover
