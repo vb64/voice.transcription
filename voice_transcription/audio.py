@@ -26,6 +26,7 @@ def save_chunk(chunk, start_time, output_dir, output_format):
     chunk.export(os.path.join(output_dir, name), format=output_format)
 
 
+# https://github.com/jiaaro/pydub/issues/256
 def merge_short_chunks(chunks, min_chunk_length_ms):
     """Merge short chunks up to given length in milliseconds."""
     merged_chunks = []
