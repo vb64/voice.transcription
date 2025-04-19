@@ -30,7 +30,7 @@ rttm:
 	$(PYTHON) cli/rttm.py --config nemo.config/diar_infer_telephonic.yaml --temp_folder build/temp fixtures
 
 mp3:
-	$(PYTHON) cli.py --whisper_batch 8 --torch_batch 4 build/xxx.mp3
+	$(PYTHON) cli/mp3_srt.py --whisper_batch 8 --torch_batch 4 fixtures
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
