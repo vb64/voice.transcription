@@ -33,3 +33,9 @@ class TestInit(TestBase):
         assert cleanup(self.build('tmp', 'file1.txt')) is None
         assert cleanup(self.build('tmp')) is None
         assert cleanup(self.build('not_exist')) is None
+
+    def test_list_mp3(self):
+        """Check list_mp3 function."""
+        from voice_transcription import list_mp3
+
+        assert list_mp3(self.fixture())
