@@ -23,14 +23,14 @@ PIP = $(PYTHON) -m pip install
 all:
 	$(PYTHON) cli.py fixtures/short.mp3
 
-aac:
-	$(PYTHON) cli/aac2mp3.py build/aac
+mp3:
+	$(PYTHON) cli/to_mp3.py build/aac
 
 rttm:
-	$(PYTHON) cli/rttm.py --config nemo.config/diar_infer_telephonic.yaml --temp_folder build/temp fixtures
+	$(PYTHON) cli/to_rttm.py --config nemo.config/diar_infer_telephonic.yaml --temp_folder build/temp fixtures
 
-mp3:
-	$(PYTHON) cli/mp3_srt.py --whisper_batch 8 --torch_batch 4 fixtures
+srt:
+	$(PYTHON) cli/to_srt.py --whisper_batch 8 --torch_batch 4 fixtures
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
