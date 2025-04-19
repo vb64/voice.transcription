@@ -1,24 +1,24 @@
-"""Module audio_splitter tests.
+"""Module audio tests.
 
-make test T=test_audio_splitter.py
+make test T=test_audio.py
 """
 import pytest
 from . import TestBase
 
 
-class TestAudioSplitter(TestBase):
-    """Module audio_splitter."""
+class TestAudio(TestBase):
+    """Module audio."""
 
     def test_main(self):
         """Check main function."""
-        from voice_transcription.audio_splitter import main
+        from voice_transcription.audio import main
 
         assert main(self.fixture('short.mp3')) is None
 
     @pytest.mark.longrunning
     def test_convert_audio(self):
         """Check convert_audio function."""
-        from voice_transcription.audio_splitter import convert_audio
+        from voice_transcription.audio import convert_audio
 
         inp_file = self.fixture('short.mp3')
         out_file = self.build('short.wav')
