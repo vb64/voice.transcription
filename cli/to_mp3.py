@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.insert(1, '.')
-from voice_transcription.audio_splitter import convert_audio
+from voice_transcription.audio import convert_audio
 
 
 def main(folder):
