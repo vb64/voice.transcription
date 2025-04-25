@@ -58,8 +58,7 @@ setup: setup_python setup_pip
 
 setup_pip:
 	$(PIP) --upgrade pip
-	$(PIP) cython
-	$(PIP) -c constraints.txt -r requirements.txt
+	$(PIP) -r requirements.txt
 	$(PIP) -r $(TESTS)/requirements.txt
 
 setup_python:
