@@ -20,17 +20,10 @@ PYTEST = $(PTEST) --cov=$(SOURCE) --cov-report term:skip-covered
 PIP = $(PYTHON) -m pip install
 
 
-all:
-	$(PYTHON) cli.py fixtures/short.mp3
+all: tests
 
 mp3:
-	$(PYTHON) cli/to_mp3.py build/aac
-
-rttm:
-	$(PYTHON) cli/to_rttm.py --config nemo.config/diar_infer_telephonic.yaml --temp_folder build/temp fixtures
-
-srt:
-	$(PYTHON) cli/to_srt.py --whisper_batch 8 --torch_batch 4 fixtures
+	$(PYTHON) cli/to_mp3.py build
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
