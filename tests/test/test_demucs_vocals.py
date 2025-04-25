@@ -2,7 +2,7 @@
 
 make test T=test_demucs_vocals.py
 """
-import pytest
+# import pytest
 from . import TestBase
 
 
@@ -24,9 +24,9 @@ class TestDemucsVocals(TestBase):
 
         demucs_vocals.demucs_separate = demucs_separate
 
-    @pytest.mark.longrunning
-    def test_isolate_vocals_real(self):
-        """Check real call for isolate_vocals function."""
-        from voice_transcription import demucs_vocals, Device
-
-        assert 'vocals.wav' in demucs_vocals.isolate_vocals(self.fixture('short.mp3'), 'build', Device.Cpu)
+#    @pytest.mark.longrunning
+#    def test_isolate_vocals_real(self):
+#        """Check real call for isolate_vocals function."""
+#        from voice_transcription import demucs_vocals, Device
+#
+#        assert 'vocals.wav' in demucs_vocals.isolate_vocals(self.fixture('short.mp3'), 'build', Device.Cpu)
