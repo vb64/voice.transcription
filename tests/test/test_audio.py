@@ -41,5 +41,8 @@ class TestAudio(TestBase):
         )
         assert len(chunks) == 14
 
+        merged = merge_short_chunks(chunks, 2 * 1000)  # by 2 sec min
+        assert len(merged) == 8
+
         merged = merge_short_chunks(chunks, 3 * 1000)  # by 3 sec min
         assert len(merged) == 5
