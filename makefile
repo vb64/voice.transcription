@@ -25,6 +25,9 @@ all: tests
 mp3:
 	$(PYTHON) cli/to_mp3.py build
 
+split:
+	$(PYTHON) cli/split_mp3.py build/xxx.mp3 10
+
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
 

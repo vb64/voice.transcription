@@ -9,11 +9,12 @@ from . import TestBase
 class TestAudio(TestBase):
     """Module audio."""
 
-    def test_main(self):
-        """Check main function."""
-        from voice_transcription.audio import main
+    @pytest.mark.longrunning
+    def test_split_audio(self):
+        """Check split_audio function."""
+        from voice_transcription.audio import split_audio
 
-        assert main(self.fixture('short.mp3')) is None
+        assert split_audio(self.fixture('short.mp3'), self.build('short'), 10 * 1000 * 60, 'mp3') is None
 
     @pytest.mark.longrunning
     def test_convert_audio(self):
