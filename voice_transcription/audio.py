@@ -34,10 +34,7 @@ class Mixer:
     def _sync(self):
         """Sync parts."""
         positions, segs = zip(*self.parts)
-
         frame_rate = segs[0].frame_rate
-        # array_type = segs[0].array_type
-
         offsets = [int(frame_rate * pos / 1000.0) for pos in positions]
         segs = AudioSegment.empty()._sync(*segs)  # pylint: disable=protected-access
         return list(zip(offsets, segs))
@@ -73,8 +70,8 @@ class Mixer:
         for offset, seg in parts:
             sample_offset = offset * channels
             samples = seg.get_array_of_samples()
-            for i in range(len(samples)):  # pylint: disable=consider-using-enumerate
-                output[i+sample_offset] += int(samples[i] * samp_multiplier)
+            for i, sample in enumerate(samples):
+                output[i+sample_offset] += int(sample * samp_multiplier)
 
         return seg._spawn(output)  # pylint: disable=protected-access
 
@@ -85,7 +82,7 @@ def save_chunk(chunk, name, output_format):
 
 
 def join_chunks(chunk_list):
-    """Merge chunks in list."""
+    """Return joined chunks from given list."""
     mixer = Mixer()
     mixer.overlay(chunk_list[0])
     for i in chunk_list[1:]:
