@@ -1,8 +1,10 @@
 """Split audio file stuff."""
 import os
+import array
 from concurrent.futures import ThreadPoolExecutor
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
+from pydub.utils import db_to_float
 
 MIN_SILENCE_LEN = 100  # Minimum length of silence in milliseconds
 SILENCE_THRESHOLD = -40  # Silence threshold in dB
@@ -16,25 +18,99 @@ class Format:
     Mp3 = 'mp3'
 
 
+# https://github.com/jiaaro/pydub/issues/256
+class Mixer:
+    """Chunk joiner."""
+
+    def __init__(self):
+        """Make empty."""
+        self.parts = []
+
+    def overlay(self, sound, position=0):
+        """Add chunk to given position."""
+        self.parts.append((position, sound))
+        return self
+
+    def _sync(self):
+        """Sync parts."""
+        positions, segs = zip(*self.parts)
+
+        frame_rate = segs[0].frame_rate
+        # array_type = segs[0].array_type
+
+        offsets = [int(frame_rate * pos / 1000.0) for pos in positions]
+        segs = AudioSegment.empty()._sync(*segs)  # pylint: disable=protected-access
+        return list(zip(offsets, segs))
+
+    def __len__(self):
+        """Return length."""
+        parts = self._sync()
+        seg = parts[0][1]
+        frame_count = max(
+            offset + seg.frame_count()
+            for offset, seg in parts
+        )
+        return int(1000.0 * frame_count / seg.frame_rate)
+
+    def append(self, sound):
+        """Add chunk."""
+        self.overlay(sound, position=len(self))
+
+    def to_audio_segment(self, gain=0):
+        """Make joined chunk."""
+        samp_multiplier = db_to_float(gain)
+        parts = self._sync()
+        seg = parts[0][1]
+        channels = seg.channels
+
+        frame_count = max(
+            offset + seg.frame_count()
+            for offset, seg in parts
+        )
+        sample_count = int(frame_count * seg.channels)
+
+        output = array.array(seg.array_type, [0]*sample_count)
+        for offset, seg in parts:
+            sample_offset = offset * channels
+            samples = seg.get_array_of_samples()
+            for i in range(len(samples)):  # pylint: disable=consider-using-enumerate
+                output[i+sample_offset] += int(samples[i] * samp_multiplier)
+
+        return seg._spawn(output)  # pylint: disable=protected-access
+
+
 def save_chunk(chunk, name, output_format):
     """Save chunk to file."""
     chunk.export(name, format=output_format)
 
 
-# https://github.com/jiaaro/pydub/issues/256
+def join_chunks(chunk_list):
+    """Merge chunks in list."""
+    mixer = Mixer()
+    mixer.overlay(chunk_list[0])
+    for i in chunk_list[1:]:
+        mixer.append(i)
+
+    return mixer.to_audio_segment()
+
+
 def merge_short_chunks(chunks, min_chunk_length_ms):
     """Merge short chunks up to given length in milliseconds."""
     merged_chunks = []
-    current_chunk = chunks[0]
+    current_chunk = [chunks[0]]
+    current_chunk_length = len(current_chunk[0])
 
     for chunk in chunks[1:]:
-        if len(current_chunk) + len(chunk) < min_chunk_length_ms:
-            current_chunk += chunk
+        if current_chunk_length + len(chunk) < min_chunk_length_ms:
+            current_chunk.append(chunk)
+            current_chunk_length += len(chunk)
         else:
-            merged_chunks.append(current_chunk)
-            current_chunk = chunk
+            merged_chunks.append(join_chunks(current_chunk))
+            current_chunk = [chunk]
+            current_chunk_length = len(chunk)
 
-    merged_chunks.append(current_chunk)
+    merged_chunks.append(join_chunks(current_chunk))
+
     return merged_chunks
 
 
