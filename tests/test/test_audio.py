@@ -3,6 +3,10 @@
 make test T=test_audio.py
 """
 import pytest
+
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+
 from . import TestBase
 
 
@@ -24,3 +28,18 @@ class TestAudio(TestBase):
         inp_file = self.fixture('short.mp3')
         out_file = self.build('short.wav')
         assert convert_audio(inp_file, out_file) is None
+
+    def test_merge_short_chunks(self):
+        """Check merge_short_chunks function."""
+        from voice_transcription.audio import merge_short_chunks
+
+        audio = AudioSegment.from_file(self.fixture('short.mp3'))
+        chunks = split_on_silence(
+          audio,
+          min_silence_len=100,  # Minimum length of silence in milliseconds
+          silence_thresh=-40  # Silence threshold in dB
+        )
+        assert len(chunks) == 14
+
+        merged = merge_short_chunks(chunks, 3 * 1000)  # by 3 sec min
+        assert len(merged) == 5
