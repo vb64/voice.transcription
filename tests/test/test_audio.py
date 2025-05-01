@@ -19,6 +19,7 @@ class TestAudio(TestBase):
         from voice_transcription.audio import split_audio
 
         assert split_audio(self.fixture('short.mp3'), self.build('short'), 10 * 1000 * 60, 'mp3') is None
+        assert split_audio(self.fixture('short.mp3'), self.build('short'), 2 * 1000, 'mp3') is None
 
     @pytest.mark.longrunning
     def test_convert_audio(self):
