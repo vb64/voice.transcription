@@ -3,7 +3,7 @@ import os
 import array
 from concurrent.futures import ThreadPoolExecutor
 from pydub import AudioSegment
-from pydub.silence import split_on_silence
+from pydub.silence import detect_silence
 from pydub.utils import db_to_float
 
 MIN_SILENCE_LEN = 100  # Minimum length of silence in milliseconds
@@ -111,13 +111,30 @@ def merge_short_chunks(chunks, min_chunk_length_ms):
     return merged_chunks
 
 
+def get_cut_positions(silence_chunks, chunk_length_ms):
+    """Return list of cut positions for given minimal chunk length."""
+    offset = 0
+    cuts = []
+    for start, end in silence_chunks:
+        pos = start + int((end - start) / 2)
+        if (pos - offset) >= chunk_length_ms:
+            cuts.append(pos)
+            offset = pos
+
+    return cuts
+
+
 def split_audio(input_file, out_file_mask, chunk_length_ms, output_format):
     """Split input audio file by chunks with given size."""
     audio = AudioSegment.from_file(input_file)
-    # Split the audio file based on silence
-    chunks = split_on_silence(audio, min_silence_len=MIN_SILENCE_LEN, silence_thresh=SILENCE_THRESHOLD)
-    # Merge adjacent chunks shorter than the specified length
-    chunks = merge_short_chunks(chunks, chunk_length_ms)
+    silence_chunks = detect_silence(audio, min_silence_len=MIN_SILENCE_LEN, silence_thresh=SILENCE_THRESHOLD)
+    chunks = []
+    start = 0
+    for i in get_cut_positions(silence_chunks, chunk_length_ms):
+        chunks.append(audio[start:i])
+        start = i
+    chunks.append(audio[start:])
+
     # Save chunks in parallel using ThreadPoolExecutor
     with ThreadPoolExecutor() as executor:
         for i, chunk in enumerate(chunks):
