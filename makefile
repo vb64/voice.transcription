@@ -28,6 +28,9 @@ mp3:
 split:
 	$(PYTHON) cli/split_mp3.py build/xxx.mp3 90
 
+duration:
+	$(PYTHON) cli/duration.py build/xxx.mp3
+
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
 
