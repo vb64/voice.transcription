@@ -1,2 +1,3 @@
 pydub==0.25.1
+audioread==3.0.1
 git+https://github.com/MahmoudAshraf97/demucs.git
