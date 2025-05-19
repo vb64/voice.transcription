@@ -209,8 +209,7 @@ def cut_part(audio, start_ms, end_ms):
             if pos >= end_ms:
                 cut_end = pos
 
-    if cut_start < 0:
-        cut_start = 0
+    cut_start = max(cut_start, 0)
     if cut_end < 0:
         cut_end = pos
 
