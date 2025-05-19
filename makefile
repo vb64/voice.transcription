@@ -25,6 +25,9 @@ all: tests
 mp3:
 	$(PYTHON) cli/to_mp3.py build
 
+cut:
+	$(PYTHON) cli/cut.py fixtures/short.mp3 10 15 build/short_10_15.mp3
+
 split:
 	$(PYTHON) cli/split_mp3.py build/xxx.mp3 90
 

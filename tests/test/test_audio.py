@@ -47,3 +47,23 @@ class TestAudio(TestBase):
 
         merged = merge_short_chunks(chunks, 3 * 1000)  # by 3 sec min
         assert len(merged) == 5
+
+    def test_cut_part(self):
+        """Check cut_part function."""
+        from voice_transcription.audio import cut_part
+
+        src = AudioSegment.from_file(self.fixture('short.mp3'), 'mp3')
+
+        audio = cut_part(
+          src,
+          10 * 1000,  # milliseconds
+          15 * 1000
+        )
+        assert len(audio) == 4546
+
+        audio = cut_part(
+          src,
+          10 * 1000,  # milliseconds
+          50 * 1000
+        )
+        assert len(audio) > 4546

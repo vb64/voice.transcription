@@ -187,3 +187,30 @@ def convert_audio(input_file, output_file):
     audio = AudioSegment.from_file(input_file, inp_format)
     # print(inp_format, '->', out_format, audio.duration_seconds, 'sec')
     audio.export(output_file, format=out_format)
+
+
+def cut_part(audio, start_ms, end_ms):
+    """Extract audio fragment from start to end in milliseconds by silence."""
+    silence_chunks = detect_silence(
+      audio,
+      min_silence_len=MIN_SILENCE_LEN,
+      silence_thresh=SILENCE_THRESHOLD,
+      seek_step=1
+    )
+
+    cut_start, cut_end, pos = -1, -1, -1
+
+    for start, end in silence_chunks:
+        pos = start + int((end - start) / 2)
+        if cut_start < 0:
+            if pos >= start_ms:
+                cut_start = pos
+        if cut_end < 0:
+            if pos >= end_ms:
+                cut_end = pos
+
+    cut_start = max(cut_start, 0)
+    if cut_end < 0:
+        cut_end = pos
+
+    return audio[cut_start:cut_end]
