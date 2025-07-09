@@ -35,7 +35,7 @@ duration:
 	$(PYTHON) cli/duration.py build/xxx.mp3
 
 json:
-	$(PYTHON) cli/to_json.py fixtures/short.mp3 build/short.json
+	$(PYTHON) cli/to_json.py build/xxx.mp3 build/xxx.json
 
 test:
 	$(PTEST) -s $(TESTS)/test/$(T)
