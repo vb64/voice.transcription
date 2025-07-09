@@ -10,11 +10,11 @@
 - [ffmpeg](https://ffmpeg.org/download.html) (распаковать архив и добавить в PATH)
 - build tools by installing [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
 
-## Настройка под Ubuntu. 24.04
+## Настройка под Ubuntu. 22.04
 
 ```
 sudo apt update
-sudo apt-get install build-essential python3.12-venv python3-pip ffmpeg screen curl
+sudo apt-get install build-essential python3.10-venv python3-pip ffmpeg screen curl
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
