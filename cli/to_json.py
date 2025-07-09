@@ -26,7 +26,7 @@ PARSER.add_argument(
 
 def main(options):  # pylint: disable=too-many-locals
     """Entry point."""
-    print("Whisper transcribe tool v.{}. {}".format(VERSION, COPYRIGHTS))
+    print("Whisper to json transcribe tool v.{}. {}".format(VERSION, COPYRIGHTS))
     stime = time.time()
 
     whisper_model = faster_whisper.WhisperModel(
