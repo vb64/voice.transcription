@@ -1,4 +1,6 @@
 """Whisper segments processing."""
+from datetime import datetime
+import faster_whisper
 
 
 def msec(sec):
@@ -27,3 +29,47 @@ def segments_to_json(segments, total_msec, progress_bar, utc_time_start):
         data.append(seg_data)
 
     return data
+
+
+def make_json(whisper_model, mp3_file, progress_bar):
+    """Return json data for given mp3 file name."""
+    print("Decode {} to wave ...".format(mp3_file))
+    waveform = faster_whisper.decode_audio(mp3_file)
+
+    print("Creating segments...")
+    segments, info = whisper_model.transcribe(
+      waveform, 'ru', suppress_tokens=[-1],
+      vad_filter=True,
+      word_timestamps=True
+    )
+    duration = msec(info.duration_after_vad)
+    print("Duration", duration, "msec")
+
+    now = datetime.utcnow()
+    data = segments_to_json(segments, duration, progress_bar, now)
+    progress_bar(duration, duration, now)
+
+    return data
+
+
+def join_jsons(data_list):
+    """Join json data from given chunks."""
+    result = []
+    for segment in data_list[0]:
+        result.append(segment)
+
+    segment = result[-1]
+    offset = segment[0] + segment[1]
+
+    for chunk in data_list[1:]:
+        for segment in chunk:
+            segment[0] += offset
+            words = segment[-1]
+            for word in words:
+                word[0] += offset
+            result.append(segment)
+
+        segment = chunk[-1]
+        offset = segment[0] + segment[1]
+
+    return result

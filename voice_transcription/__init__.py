@@ -1,7 +1,12 @@
 """Voice transcription stuff."""
-import os
 from datetime import datetime, timedelta
+import os
+import wave
+import contextlib
+
 import torch
+from pydub import AudioSegment
+import audioread
 
 
 class Model:
@@ -54,3 +59,43 @@ def progress_bar(iteration, total, utc_time_start, length=100, fill='█'):
       timedelta(seconds=sec_done),
       timedelta(seconds=sec_estimated)
     ), end="\r")
+
+
+def get_tasks(mp3_file, temp_folder, max_length_sec):
+    """Create task list for given mp3."""
+    wav_name = os.path.join(temp_folder, 'long.wav')
+
+    with audioread.audio_open(mp3_file) as audio_file:
+        print("File", mp3_file, audio_file.duration, "sec")
+        print('Backend:', str(type(audio_file).__module__).split('.')[1])
+
+        if audio_file.duration <= max_length_sec:
+            print("Single file.")
+            return [mp3_file]
+
+        print("Converting to", wav_name, "...")
+
+        with contextlib.closing(wave.open(wav_name, 'w')) as out:
+            out.setnchannels(audio_file.channels)
+            out.setframerate(audio_file.samplerate)
+            out.setsampwidth(2)
+
+            for buf in audio_file:
+                out.writeframes(buf)
+
+    audio = AudioSegment.from_wav(wav_name)
+
+    from .audio import split_on_silence_min_length
+
+    chunks = split_on_silence_min_length(
+      audio, min_silence_len=100, silence_thresh=-40, min_chunk_length=max_length_sec * 1000
+    )
+    print("Split to chunks:", len(chunks))
+
+    name = os.path.join(temp_folder, "nemo_chunk_")
+    names = []
+    for i, chunk in enumerate(chunks):
+        names.append(name + str(i) + ".mp3")
+        chunk.export(names[-1], format='mp3')
+
+    return names
