@@ -10,17 +10,24 @@ from . import TestBase
 class TestWhisper(TestBase):
     """Module to_words.py."""
 
-    def test_segments_to_json(self):
-        """Check segments_to_json function."""
-        from voice_transcription.whisper import segments_to_json, msec
-        from voice_transcription import Model, Device, MTYPES, progress_bar
+    def setUp(self):
+        """Set up tests."""
+        super().setUp()
 
-        whisper_model = faster_whisper.WhisperModel(
+        from voice_transcription import Model, Device, MTYPES
+
+        self.model = faster_whisper.WhisperModel(
           Model.Large,
           device=Device.Cpu,
           compute_type=MTYPES[Device.Cpu]
         )
-        segments, info = whisper_model.transcribe(
+
+    def test_segments_to_json(self):
+        """Check segments_to_json function."""
+        from voice_transcription.whisper import segments_to_json, msec
+        from voice_transcription import progress_bar
+
+        segments, info = self.model.transcribe(
           faster_whisper.decode_audio(self.fixture('short.mp3')),
           'ru',
           suppress_tokens=[-1],
@@ -38,4 +45,12 @@ class TestWhisper(TestBase):
         # print("# rttm", last.start + last.length - first.start)
 
         data = segments_to_json(segments, msec(info.duration_after_vad), progress_bar, datetime.utcnow())
+        assert len(data) == 5
+
+    def test_make_json(self):
+        """Check make_json function."""
+        from voice_transcription.whisper import make_json
+        from voice_transcription import progress_bar
+
+        data = make_json(self.model, self.fixture('short.mp3'), progress_bar)
         assert len(data) == 5
