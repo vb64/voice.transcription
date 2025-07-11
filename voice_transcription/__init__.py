@@ -1,5 +1,6 @@
 """Voice transcription stuff."""
 import os
+from datetime import datetime
 import torch
 
 
@@ -37,11 +38,13 @@ def list_mp3(folder):
 
 
 # https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
-def progress_bar(iteration, total, length=100, fill='█'):
+def progress_bar(iteration, total, utc_time_start, length=100, fill='█'):
     """Call in a loop to create terminal progress bar."""
     decimals = 1
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filled_length = int(length * iteration // total)
     body = fill * filled_length + '-' * (length - filled_length)
+    sec_done = int(round((datetime.utcnow() - utc_time_start).total_seconds()))
+    sec_estimated = 0
 
-    print("\rDecode |{}| {}%".format(body, percent), end="\r")
+    print("\rDecode |{}| {}% {} / {} sec".format(body, percent, sec_done, sec_estimated), end="\r")

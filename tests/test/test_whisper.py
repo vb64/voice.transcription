@@ -2,6 +2,7 @@
 
 make test T=test_whisper.py
 """
+from datetime import datetime
 import faster_whisper
 from . import TestBase
 
@@ -36,5 +37,5 @@ class TestWhisper(TestBase):
         # last = rttm.rows[-1]
         # print("# rttm", last.start + last.length - first.start)
 
-        data = segments_to_json(segments, msec(info.duration_after_vad), progress_bar)
+        data = segments_to_json(segments, msec(info.duration_after_vad), progress_bar, datetime.utcnow())
         assert len(data) == 5

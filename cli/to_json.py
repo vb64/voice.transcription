@@ -2,6 +2,7 @@
 import time
 import argparse
 import sys
+from datetime import datetime
 import json
 
 import faster_whisper
@@ -47,8 +48,9 @@ def main(options):  # pylint: disable=too-many-locals
     duration = msec(info.duration_after_vad)
     print("Duration", duration, "msec")
 
-    data = segments_to_json(segments, duration, progress_bar)
-    progress_bar(duration, duration)
+    now = datetime.utcnow()
+    data = segments_to_json(segments, duration, progress_bar, now)
+    progress_bar(duration, duration, now)
     print("\nSaving json {}...".format(options.out_file))
 
     with open(options.out_file, "wt", encoding="utf8") as out:
