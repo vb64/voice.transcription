@@ -50,3 +50,8 @@ def make_json(whisper_model, mp3_file, progress_bar):
     progress_bar(duration, duration, now)
 
     return data
+
+
+def join_jsons(data_list):
+    """Join json data from given chunks."""
+    return data_list[0]

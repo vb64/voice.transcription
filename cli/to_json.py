@@ -10,8 +10,8 @@ import shutil
 import faster_whisper
 
 sys.path.insert(1, '.')
-from voice_transcription import Model, Device, MTYPES, progress_bar, join_jsons, get_tasks
-from voice_transcription.whisper import make_json, segments_to_json, msec
+from voice_transcription import Model, Device, MTYPES, progress_bar, get_tasks
+from voice_transcription.whisper import make_json, segments_to_json, join_jsons, msec
 
 VERSION = '1.0'
 COPYRIGHTS = 'Copyrights by Vitaly Bogomolov 2025'

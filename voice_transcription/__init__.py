@@ -99,8 +99,3 @@ def get_tasks(mp3_file, temp_folder, max_length_sec):
         chunk.export(names[-1], format='mp3')
 
     return names
-
-
-def join_jsons(data_list):
-    """Join json data from given chunks."""
-    return data_list[0]
