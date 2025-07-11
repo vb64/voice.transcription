@@ -54,4 +54,22 @@ def make_json(whisper_model, mp3_file, progress_bar):
 
 def join_jsons(data_list):
     """Join json data from given chunks."""
-    return data_list
+    result = []
+    for segment in data_list[0]:
+        result.append(segment)
+
+    segment = result[-1]
+    offset = segment[0] + segment[1]
+
+    for chunk in data_list[1:]:
+        for segment in chunk:
+            segment[0] += offset
+            words = segment[-1]
+            for word in words:
+                word[0] += offset
+            result.append(segment)
+
+        segment = chunk[-1]
+        offset = segment[0] + segment[1]
+
+    return result

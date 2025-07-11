@@ -55,7 +55,12 @@ class TestWhisper(TestBase):
         data = make_json(self.model, self.fixture('short.mp3'), progress_bar)
         assert len(data) == 5
 
-    def test_join_jsons(self):
+
+class TestWhisperStatic(TestBase):
+    """Module to_words.py static functions."""
+
+    @staticmethod
+    def test_join_jsons():
         """Check join_jsons function."""
 
         from voice_transcription.whisper import join_jsons
@@ -77,6 +82,14 @@ class TestWhisper(TestBase):
             [14, 6, "zz2"],
           ],
         ]
+        chunk3 = [
+          20, 30, "xx3 yy3 zz3",
+          [
+            [20, 10, "xx3"],
+            [30, 10, "yy3"],
+            [40, 10, "zz3"],
+          ],
+        ]
 
         expected = [
           [
@@ -96,7 +109,19 @@ class TestWhisper(TestBase):
               [44, 6, "zz2"],
             ],
           ],
+          [
+            50, 30, "xx3 yy3 zz3",
+            [
+              [50, 10, "xx3"],
+              [60, 10, "yy3"],
+              [70, 10, "zz3"],
+            ],
+          ],
+
         ]
 
-        result = join_jsons([chunk1, chunk2])
+        result = join_jsons([[chunk1], [chunk2, chunk3]])
         assert len(result) == len(expected)
+        assert result[0] == expected[0]
+        assert result[1] == expected[1]
+        assert result[2] == expected[2]
