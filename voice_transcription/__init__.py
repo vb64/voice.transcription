@@ -34,3 +34,14 @@ def list_mp3(folder):
         if os.path.splitext(item)[1] == '.mp3':
             result.append(item)
     return result
+
+
+# https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters
+def progress_bar(iteration, total, length=100, fill='█'):
+    """Call in a loop to create terminal progress bar."""
+    decimals = 1
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filled_length = int(length * iteration // total)
+    body = fill * filled_length + '-' * (length - filled_length)
+
+    print("\rDecode |{}| {}%".format(body, percent), end="\r")

@@ -12,7 +12,7 @@ class TestWhisper(TestBase):
     def test_segments_to_json(self):
         """Check segments_to_json function."""
         from voice_transcription.whisper import segments_to_json, msec
-        from voice_transcription import Model, Device, MTYPES
+        from voice_transcription import Model, Device, MTYPES, progress_bar
 
         whisper_model = faster_whisper.WhisperModel(
           Model.Large,
@@ -36,5 +36,5 @@ class TestWhisper(TestBase):
         # last = rttm.rows[-1]
         # print("# rttm", last.start + last.length - first.start)
 
-        data = segments_to_json(segments, msec(info.duration_after_vad))
+        data = segments_to_json(segments, msec(info.duration_after_vad), progress_bar)
         assert len(data) == 5
