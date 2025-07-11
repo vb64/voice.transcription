@@ -42,6 +42,8 @@ def main(options):
     """Entry point."""
     print("Whisper to json transcribe tool v.{}. {}".format(VERSION, COPYRIGHTS))
     stime = time.time()
+
+    os.makedirs(options.temp_folder, exist_ok=True)
     tasks = get_tasks(options.mp3_file, options.temp_folder, options.max_length)
 
     print("Loading Whisper model...")
@@ -51,7 +53,6 @@ def main(options):
       compute_type=MTYPES[Device.Cpu]
     )
 
-    os.makedirs(options.temp_folder, exist_ok=True)
     data = join_jsons([
       make_json(whisper_model, i, progress_bar)
       for i in tasks
