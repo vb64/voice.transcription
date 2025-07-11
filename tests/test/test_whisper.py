@@ -91,6 +91,15 @@ class TestWhisperStatic(TestBase):
           ],
         ]
 
+        chunk4 = [
+          10, 20, "xx1 yy1 zz1",
+          [
+            [10, 6, "xx1"],
+            [17, 6, "yy1"],
+            [24, 6, "zz1"],
+          ],
+        ]
+
         expected = [
           [
             10, 20, "xx1 yy1 zz1",
@@ -118,10 +127,19 @@ class TestWhisperStatic(TestBase):
             ],
           ],
 
+          [
+            90, 20, "xx1 yy1 zz1",
+            [
+              [90, 6, "xx1"],
+              [97, 6, "yy1"],
+              [104, 6, "zz1"],
+            ],
+          ],
         ]
 
-        result = join_jsons([[chunk1], [chunk2, chunk3]])
+        result = join_jsons([[chunk1], [chunk2, chunk3], [chunk4]])
         assert len(result) == len(expected)
         assert result[0] == expected[0]
         assert result[1] == expected[1]
         assert result[2] == expected[2]
+        assert result[3] == expected[3]
