@@ -6,11 +6,20 @@ def msec(sec):
     return int(round(float(sec * 1000)))
 
 
-def segments_to_json(segments, _total_msec):
+def segments_to_json(segments, total_msec, progress_bar, utc_time_start):
     """Decode whisper segments to json."""
+    progress_bar(0, total_msec, utc_time_start)
+
     data = []
+    first_segment_offset = None
+
     for segment in segments:
         seg_data = [msec(segment.start), msec(segment.end - segment.start), segment.text.strip()]
+        if first_segment_offset is None:
+            first_segment_offset = seg_data[0]
+
+        progress_bar(seg_data[0] - first_segment_offset, total_msec, utc_time_start)
+
         words = []
         for word in segment.words:
             words.append([msec(word.start), msec(word.end - word.start), word.word.strip()])

@@ -2,12 +2,13 @@
 import time
 import argparse
 import sys
+from datetime import datetime
 import json
 
 import faster_whisper
 
 sys.path.insert(1, '.')
-from voice_transcription import Model, Device, MTYPES
+from voice_transcription import Model, Device, MTYPES, progress_bar
 from voice_transcription.whisper import segments_to_json, msec
 
 VERSION = '1.0'
@@ -29,21 +30,29 @@ def main(options):  # pylint: disable=too-many-locals
     print("Whisper to json transcribe tool v.{}. {}".format(VERSION, COPYRIGHTS))
     stime = time.time()
 
+    print("Loading model...")
     whisper_model = faster_whisper.WhisperModel(
       Model.Large,
       device=Device.Cpu,
       compute_type=MTYPES[Device.Cpu]
     )
+    print("Decode wave...")
     waveform = faster_whisper.decode_audio(options.mp3_file)
 
+    print("Creating segments...")
     segments, info = whisper_model.transcribe(
       waveform, 'ru', suppress_tokens=[-1],
       vad_filter=True,
       word_timestamps=True
     )
     duration = msec(info.duration_after_vad)
-    print("duration", duration, "msec")
-    data = segments_to_json(segments, duration)
+    print("Duration", duration, "msec")
+
+    now = datetime.utcnow()
+    data = segments_to_json(segments, duration, progress_bar, now)
+    progress_bar(duration, duration, now)
+    print("\nSaving json {}...".format(options.out_file))
+
     with open(options.out_file, "wt", encoding="utf8") as out:
         out.write(json.dumps(data, indent=4, ensure_ascii=False).encode('utf8').decode())
 
