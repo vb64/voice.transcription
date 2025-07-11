@@ -54,7 +54,7 @@ def progress_bar(iteration, total, utc_time_start, length=100, fill='█'):
     if iteration > 0:
         sec_estimated = int(round(sec_done * total / iteration))
 
-    print("\rDecode |{}| {}% {} / {}".format(
+    print("\rDecode |{}| {}% {} / {}          ".format(
       body, percent,
       timedelta(seconds=sec_done),
       timedelta(seconds=sec_estimated)
@@ -92,7 +92,7 @@ def get_tasks(mp3_file, temp_folder, max_length_sec):
     )
     print("Split to chunks:", len(chunks))
 
-    name = os.path.join(temp_folder, "nemo_chunk_")
+    name = os.path.join(temp_folder, "chunk_")
     names = []
     for i, chunk in enumerate(chunks):
         names.append(name + str(i) + ".mp3")
